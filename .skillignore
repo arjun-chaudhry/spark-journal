@@ -1,5 +1,5 @@
-# Hermes install-time scanner/package exclusions for repository-root scans.
-# Keep the public bundle focused on the runtime skill under skills/last30days/.
+﻿# Hermes install-time scanner/package exclusions for repository-root scans.
+# Keep the public bundle focused on the runtime skill under skills/spark-journal/.
 
 # VCS, local envs, caches, and generated outputs
 .git/
@@ -14,7 +14,7 @@ __pycache__/
 *.png
 *.gif
 assets/
-skills/last30days/assets/
+skills/spark-journal/assets/
 .DS_Store
 .coverage
 htmlcov/
@@ -54,17 +54,17 @@ SPEC.md
 TASKS.md
 
 # Dev/eval scripts shipped inside the skill tree but not needed at runtime
-skills/last30days/scripts/build-skill.sh
-skills/last30days/scripts/compare.sh
-skills/last30days/scripts/evaluate_search_quality.py
-skills/last30days/scripts/setup-keychain.sh
-skills/last30days/scripts/setup-pass.sh
-skills/last30days/scripts/test_device_auth.py
-skills/last30days/scripts/test-v1-vs-v2.sh
-skills/last30days/scripts/verify_v3.py
+skills/spark-journal/scripts/build-skill.sh
+skills/spark-journal/scripts/compare.sh
+skills/spark-journal/scripts/evaluate_search_quality.py
+skills/spark-journal/scripts/setup-keychain.sh
+skills/spark-journal/scripts/setup-pass.sh
+skills/spark-journal/scripts/test_device_auth.py
+skills/spark-journal/scripts/test-v1-vs-v2.sh
+skills/spark-journal/scripts/verify_v3.py
 
 # Keep visible: optional runtime watchlist/store/briefing feature scripts
 # (`watchlist.py`, `store.py`, and `briefing.py`).
 
 # Vendored third-party X-search client (node_modules analog); excluded from scan, still installed.
-skills/last30days/scripts/lib/vendor/
+skills/spark-journal/scripts/lib/vendor/

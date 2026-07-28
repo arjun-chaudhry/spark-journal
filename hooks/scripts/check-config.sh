@@ -1,24 +1,24 @@
-#!/bin/bash
+﻿#!/bin/bash
 set -euo pipefail
 
-# Check last30days configuration status and show appropriate welcome message.
+# Check spark-journal configuration status and show appropriate welcome message.
 # Priority for this status hook:
-# .claude/last30days.env > ~/.config/last30days/.env > env vars > Keychain presence
+# .claude/spark-journal.env > ~/.config/spark-journal/.env > env vars > Keychain presence
 
-PROJECT_ENV=".claude/last30days.env"
-GLOBAL_ENV="$HOME/.config/last30days/.env"
-if [[ "${LAST30DAYS_CONFIG_DIR+x}" == "x" ]]; then
-  if [[ -n "$LAST30DAYS_CONFIG_DIR" ]]; then
-    GLOBAL_ENV="$LAST30DAYS_CONFIG_DIR/.env"
+PROJECT_ENV=".claude/spark-journal.env"
+GLOBAL_ENV="$HOME/.config/spark-journal/.env"
+if [[ "${spark-journal_CONFIG_DIR+x}" == "x" ]]; then
+  if [[ -n "$spark-journal_CONFIG_DIR" ]]; then
+    GLOBAL_ENV="$spark-journal_CONFIG_DIR/.env"
   else
     GLOBAL_ENV=""
   fi
 fi
 
-# Ensure LAST30DAYS_MEMORY_DIR exists for HTML-brief / raw-markdown saves.
+# Ensure spark-journal_MEMORY_DIR exists for HTML-brief / raw-markdown saves.
 # SKILL.md and the engine default this via the same env-var fallback. Fresh
 # installs otherwise fail silently on first --emit=html run. See #395.
-mkdir -p "${LAST30DAYS_MEMORY_DIR:-$HOME/Documents/Last30Days}" 2>/dev/null || true
+mkdir -p "${spark-journal_MEMORY_DIR:-$HOME/Documents/spark-journal}" 2>/dev/null || true
 
 # Helper: warn if file permissions are too open
 check_perms() {
@@ -36,7 +36,7 @@ check_perms() {
   # every Linux session start and printed a false WARNING.
   perms=$(stat -c '%a' "$file" 2>/dev/null || stat -f '%Lp' "$file" 2>/dev/null || echo "")
   if [[ -n "$perms" && "$perms" != "600" && "$perms" != "400" ]]; then
-    chmod 600 "$file" && echo "/last30days: WARNING — $file had permissions $perms — auto-fixed with chmod 600" || echo "/last30days: WARNING — $file has permissions $perms (should be 600). Fix: chmod 600 $file"
+    chmod 600 "$file" && echo "/spark-journal: WARNING — $file had permissions $perms — auto-fixed with chmod 600" || echo "/spark-journal: WARNING — $file has permissions $perms (should be 600). Fix: chmod 600 $file"
   fi
 }
 
@@ -120,7 +120,7 @@ load_keychain_presence() {
       current="${!key:-}"
     fi
     [[ -n "$current" ]] && continue
-    if security find-generic-password -a "$user" -s "last30days-${key}" >/dev/null 2>&1; then
+    if security find-generic-password -a "$user" -s "spark-journal-${key}" >/dev/null 2>&1; then
       printf -v "ENV_${key}" '%s' "keychain"
     fi
   done
@@ -133,14 +133,14 @@ load_keychain_presence
 SETUP_COMPLETE="${ENV_SETUP_COMPLETE:-${SETUP_COMPLETE:-}}"
 
 # Compute last-run summary line (if last-run.json exists)
-if [[ "${LAST30DAYS_CONFIG_DIR+x}" == "x" ]]; then
-  if [[ -n "$LAST30DAYS_CONFIG_DIR" ]]; then
-    LAST_RUN_FILE="$LAST30DAYS_CONFIG_DIR/last-run.json"
+if [[ "${spark-journal_CONFIG_DIR+x}" == "x" ]]; then
+  if [[ -n "$spark-journal_CONFIG_DIR" ]]; then
+    LAST_RUN_FILE="$spark-journal_CONFIG_DIR/last-run.json"
   else
     LAST_RUN_FILE=""
   fi
 else
-  LAST_RUN_FILE="$HOME/.config/last30days/last-run.json"
+  LAST_RUN_FILE="$HOME/.config/spark-journal/last-run.json"
 fi
 LAST_RUN_LINE=""
 # python3 -c, NOT a heredoc: bash 5.3 feeds heredocs to the child through a
@@ -186,7 +186,7 @@ if [[ -z "$SETUP_COMPLETE" && -z "$CONFIG_FILE" && -z "${ENV_OPENAI_API_KEY:-${O
     # YouTube is already working via the on-system yt-dlp binary — don't list
     # it as something the wizard needs to unlock. See #394.
     printf '%s\n' \
-      '/last30days: Ready to use. Run /last30days to get started — setup takes 30 seconds.' \
+      '/spark-journal: Ready to use. Run /spark-journal to get started — setup takes 30 seconds.' \
       '  Research any topic across Reddit, HN, X, YouTube, Polymarket (last 30 days).' \
       '' \
       'Reddit, Hacker News, Polymarket, and YouTube (yt-dlp detected) work out of the box.' \
@@ -194,7 +194,7 @@ if [[ -z "$SETUP_COMPLETE" && -z "$CONFIG_FILE" && -z "${ENV_OPENAI_API_KEY:-${O
       '  Detected: yt-dlp is installed (YouTube transcripts ready, no setup needed).'
   else
     printf '%s\n' \
-      '/last30days: Ready to use. Run /last30days to get started — setup takes 30 seconds.' \
+      '/spark-journal: Ready to use. Run /spark-journal to get started — setup takes 30 seconds.' \
       '  Research any topic across Reddit, HN, X, YouTube, Polymarket (last 30 days).' \
       '' \
       'Reddit, Hacker News, and Polymarket work out of the box.' \
@@ -250,21 +250,21 @@ fi
 
 if [[ -n "$HAS_SCRAPECREATORS" ]]; then
   # Fully configured — compact ready message
-  echo "/last30days: Ready — ${SOURCE_COUNT} sources active."
+  echo "/spark-journal: Ready — ${SOURCE_COUNT} sources active."
   echo "  Research any topic across social + market + web sources (last 30 days)."
   if [[ -n "$LAST_RUN_LINE" ]]; then
     echo "$LAST_RUN_LINE"
   fi
 else
   # Setup done but missing ScrapeCreators — recommend it
-  echo "/last30days: Ready — ${SOURCE_COUNT} sources active."
+  echo "/spark-journal: Ready — ${SOURCE_COUNT} sources active."
   echo "  Research any topic across social + market + web sources (last 30 days)."
   if [[ -n "$LAST_RUN_LINE" ]]; then
     echo "$LAST_RUN_LINE"
   fi
   echo "  Tip: Add ScrapeCreators for Reddit comments + TikTok + Instagram."
   echo "  100 free credits, no credit card — scrapecreators.com"
-  echo "  last30days has no affiliation with any API provider."
+  echo "  spark-journal has no affiliation with any API provider."
 fi
 
 # The branches above end with `[[ -n "$LAST_RUN_LINE" ]] && echo ...`. When

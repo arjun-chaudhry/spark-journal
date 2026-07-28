@@ -1,4 +1,4 @@
-"""Trustpilot brand-sentiment source for last30days.
+﻿"""Trustpilot brand-sentiment source for spark-journal.
 
 Shells out to ``trustpilot-pp-cli`` to surface a company's TrustScore and
 Trustpilot's own AI review summary for brand/company topics. Trustpilot has no
@@ -19,7 +19,7 @@ Default-on safety (three gates):
      domain (``--trustpilot-domain`` or an auto-resolve hint) bypasses this
      gate: an explicit domain is proof of brand intent.
   2. Browser opt-out. Automated contexts (cron, CI, the eval harness) can set
-     ``LAST30DAYS_TRUSTPILOT_NO_BROWSER`` to disable the source entirely, so a
+     ``spark-journal_TRUSTPILOT_NO_BROWSER`` to disable the source entirely, so a
      headless run never spawns the cookie harvest.
   3. Graceful degradation. Any CLI failure (no Chrome, expired cookie that
      cannot re-harvest, timeout) degrades to empty results, never an error.
@@ -55,7 +55,7 @@ SEARCH_TIMEOUT = 75  # generous: a cold run may harvest a WAF cookie (~10s).
 
 AUTH_STATUS_TIMEOUT = 20  # auth status is a local SQLite read; fast.
 
-NO_BROWSER_ENV = "LAST30DAYS_TRUSTPILOT_NO_BROWSER"
+NO_BROWSER_ENV = "spark-journal_TRUSTPILOT_NO_BROWSER"
 
 # Among name-matching search hits, the top hit must have this many times the
 # runner-up's review volume to win automatically. Lookalike/squatter pages have
@@ -110,7 +110,7 @@ def _harvest_allowed(config: Optional[Dict[str, Any]]) -> bool:
     environment. The env fallback is load-bearing: ``config`` is assembled from
     an allowlist in ``env.get_config``, so a fallback here guarantees the
     documented kill-switch works even when the key is not propagated into
-    config (e.g. a bare ``LAST30DAYS_TRUSTPILOT_NO_BROWSER=1`` in cron/CI).
+    config (e.g. a bare ``spark-journal_TRUSTPILOT_NO_BROWSER=1`` in cron/CI).
     """
     if config and _truthy(config.get(NO_BROWSER_ENV)):
         return False

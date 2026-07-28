@@ -1,16 +1,16 @@
-#!/usr/bin/env bash
-# Store last30days API keys in a pass(1) store.
+﻿#!/usr/bin/env bash
+# Store spark-journal API keys in a pass(1) store.
 #
-# Keys are stored at pass path `last30days/<KEY>` (the Linux/Unix analog of the
-# Keychain `last30days-<KEY>` convention). The lib/env.py loader picks them up
+# Keys are stored at pass path `spark-journal/<KEY>` (the Linux/Unix analog of the
+# Keychain `spark-journal-<KEY>` convention). The lib/env.py loader picks them up
 # automatically as a lowest-priority credential source wherever `pass` exists.
-# Honors PASSWORD_STORE_DIR; override the path prefix with LAST30DAYS_PASS_PREFIX
+# Honors PASSWORD_STORE_DIR; override the path prefix with spark-journal_PASS_PREFIX
 # (must match what the loader uses).
 #
 # Usage:
 #   ./setup-pass.sh              # interactive: prompts for each key
 #   ./setup-pass.sh KEY [KEY..]  # prompt only for the listed keys
-#   ./setup-pass.sh --list       # list which last30days/* entries exist
+#   ./setup-pass.sh --list       # list which spark-journal/* entries exist
 #   ./setup-pass.sh --delete KEY # remove a stored key
 #
 # Existing values are shown as "(set)" and skipped unless --replace is passed.
@@ -18,7 +18,7 @@
 
 set -euo pipefail
 
-PREFIX="${LAST30DAYS_PASS_PREFIX:-last30days/}"
+PREFIX="${spark-journal_PASS_PREFIX:-spark-journal/}"
 # Mirrors lib/env.py::KEYCHAIN_KEYS — kept in sync via
 # tests/test_env_pass.py::test_pass_keys_match_setup_script.
 ALL_KEYS=(

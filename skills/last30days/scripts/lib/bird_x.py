@@ -1,4 +1,4 @@
-"""Bird X search client for the v3.0.0 last30days pipeline.
+﻿"""Bird X search client for the v3.0.0 spark-journal pipeline.
 
 Uses a vendored subset of @steipete/bird v0.8.0 (MIT License) to search X
 via Twitter's GraphQL API. No external `bird` CLI binary needed - just Node.js.
@@ -198,7 +198,7 @@ def install_bird() -> Tuple[bool, str]:
         Tuple of (success, message).
     """
     if is_bird_installed():
-        return True, "Bird search is bundled with /last30days v3.0.0 - no installation needed."
+        return True, "Bird search is bundled with /spark-journal v3.0.0 - no installation needed."
     if not shutil.which("node"):
         return False, "Node.js 22+ is required for X search. Install Node.js first."
     return False, f"Vendored bird-search.mjs not found at {_BIRD_SEARCH_MJS}"
@@ -242,7 +242,7 @@ def _invoke_bird_subprocess(query: str, count: int, timeout: int):
     def _register(pid: int) -> None:
         pid_holder.append(pid)
         try:
-            from last30days import register_child_pid
+            from spark-journal import register_child_pid
             register_child_pid(pid)
         except ImportError:
             pass
@@ -261,7 +261,7 @@ def _invoke_bird_subprocess(query: str, count: int, timeout: int):
     finally:
         if pid_holder:
             try:
-                from last30days import unregister_child_pid
+                from spark-journal import unregister_child_pid
                 unregister_child_pid(pid_holder[0])
             except Exception:
                 pass

@@ -1,4 +1,4 @@
-"""Digg AI 1000 source for last30days.
+﻿"""Digg AI 1000 source for spark-journal.
 
 Shells out to ``digg-pp-cli`` (read-only, no auth required) to surface
 clustered stories curated from ~1000 high-signal AI accounts on X. Each
@@ -258,7 +258,7 @@ def parse_digg_response(
         first_post_age = cluster.get("firstPostAge")
         date_str = _parse_first_post_age(first_post_age)
         if date_str is None and first_post_age:
-            # firstPostAge present but outside 30d -> drop; last30days contract.
+            # firstPostAge present but outside 30d -> drop; spark-journal contract.
             continue
 
         rank_decay = max(0.3, 1.0 - (i * 0.02))

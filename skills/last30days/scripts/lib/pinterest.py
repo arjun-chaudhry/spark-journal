@@ -1,4 +1,4 @@
-"""Pinterest search via ScrapeCreators API for /last30days.
+﻿"""Pinterest search via ScrapeCreators API for /spark-journal.
 
 Uses ScrapeCreators REST API to search Pinterest by keyword, extract
 engagement metrics (saves, comments), and return pin descriptions.

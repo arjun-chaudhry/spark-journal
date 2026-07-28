@@ -1,4 +1,4 @@
-# Save shareable HTML brief
+﻿# Save shareable HTML brief
 
 This reference file is loaded by the main `SKILL.md` when the user asked for an HTML brief (either through an HTML-looking prompt argument like `--emit=html` / `--emit:html` / `--html`, or in natural language - "give me a shareable HTML brief", "give it to me in HTML", "for Slack", "for Notion", "export as HTML", etc.). The detection happens in `SKILL.md` so that the common no-HTML path stays short; the implementation lives here. Those prompt arguments are user intent signals for the skill; they are not the full Python CLI contract.
 
@@ -28,7 +28,7 @@ The contract has two modes:
 #      wrote in chat.
 #    In both modes, do not paraphrase, summarize, or reorder. The HTML must read
 #    identically to the intended report in voice and citations.
-SYNTHESIS_FILE="/tmp/last30days-synthesis-${CLAUDE_SESSION_ID}.md"
+SYNTHESIS_FILE="/tmp/spark-journal-synthesis-${CLAUDE_SESSION_ID}.md"
 # >| not >: fixed path may already exist on a same-session re-run; a plain >
 # is refused under `set -o noclobber`.
 cat >| "$SYNTHESIS_FILE" <<'SYNTHESIS_EOF'
@@ -50,23 +50,23 @@ SYNTHESIS_EOF
 #    REPLAY THE SAME SCOPE FLAGS as your original run (--plan, --hiring-signals,
 #    resolved --x-handle/--subreddits/etc). On a same-topic follow-up, the
 #    engine reuses the structured last-report cache at
-#    ~/.config/last30days/last-report.json to build badge metadata and footer
+#    ~/.config/spark-journal/last-report.json to build badge metadata and footer
 #    without re-running source fetchers. That cache is intentionally short-lived
-#    (default: one hour; tune with LAST30DAYS_REPORT_CACHE_TTL_SECONDS, or set
+#    (default: one hour; tune with spark-journal_REPORT_CACHE_TTL_SECONDS, or set
 #    it to 0 to disable reuse). If the cache is stale, missing, or for a
 #    different topic, stderr says "No matching cached report data" and the
 #    engine falls back to a fresh run; the same scope flags keep that fallback
 #    aligned with the synthesis body.
 SLUG=$(echo "$TOPIC" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-//;s/-$//')
-HTML_PATH="${LAST30DAYS_MEMORY_DIR}/${SLUG}-brief.html"
+HTML_PATH="${spark-journal_MEMORY_DIR}/${SLUG}-brief.html"
 # Collision guard: the `> "$HTML_PATH"` redirect below OVERWRITES - the engine
 # does NOT auto-date the brief (its date-suffix logic applies only to --save-dir
 # raw files, not to this redirected --emit=html stream). So if the clean name
 # already exists, date-suffix it here to avoid clobbering a prior brief.
 if [ -f "$HTML_PATH" ]; then
-  HTML_PATH="${LAST30DAYS_MEMORY_DIR}/${SLUG}-brief-$(date +%F).html"
+  HTML_PATH="${spark-journal_MEMORY_DIR}/${SLUG}-brief-$(date +%F).html"
 fi
-"${LAST30DAYS_PYTHON}" "${SKILL_ROOT}/scripts/last30days.py" "${TOPIC}" \
+"${spark-journal_PYTHON}" "${SKILL_ROOT}/scripts/spark-journal.py" "${TOPIC}" \
   --emit=html \
   --synthesis-file "$SYNTHESIS_FILE" \
   "${SCOPE_FLAGS[@]}" \
@@ -104,13 +104,13 @@ When publishing to `ht-ml.app`, ask a second question:
 
 Before the `ht-ml.app` choice, tell the user that public pages may be crawled or indexed, and that password protection is available. If the user chooses password protection, use a unique shared password they provide for this report; do not use their own account password.
 
-Agents should discover the current publishing mechanics for the selected service when needed, including by visiting the service site, rather than hard-coding detailed service-specific instructions in chat. For the built-in `ht-ml.app` path, the engine supports `--publish-html`; on the password-protected branch, pass the shared password through `LAST30DAYS_PUBLISH_PASSWORD` rather than command-line arguments.
+Agents should discover the current publishing mechanics for the selected service when needed, including by visiting the service site, rather than hard-coding detailed service-specific instructions in chat. For the built-in `ht-ml.app` path, the engine supports `--publish-html`; on the password-protected branch, pass the shared password through `spark-journal_PUBLISH_PASSWORD` rather than command-line arguments.
 
-When the user chooses the built-in `ht-ml.app` path, add `--publish-html` to the same `--emit=html` command. Use `--output "$HTML_PATH"` rather than shell redirection so the engine can write the `.publish.json` companion metadata next to the local HTML file. On the password-protected branch, set `LAST30DAYS_PUBLISH_PASSWORD` in the subprocess environment instead of passing `--publish-password` in the shell command.
+When the user chooses the built-in `ht-ml.app` path, add `--publish-html` to the same `--emit=html` command. Use `--output "$HTML_PATH"` rather than shell redirection so the engine can write the `.publish.json` companion metadata next to the local HTML file. On the password-protected branch, set `spark-journal_PUBLISH_PASSWORD` in the subprocess environment instead of passing `--publish-password` in the shell command.
 
 ```bash
-LAST30DAYS_PUBLISH_PASSWORD="${PUBLISH_PASSWORD:-}" \
-"${LAST30DAYS_PYTHON}" "${SKILL_ROOT}/scripts/last30days.py" "${TOPIC}" \
+spark-journal_PUBLISH_PASSWORD="${PUBLISH_PASSWORD:-}" \
+"${spark-journal_PYTHON}" "${SKILL_ROOT}/scripts/spark-journal.py" "${TOPIC}" \
   --emit=html \
   --synthesis-file "$SYNTHESIS_FILE" \
   --output "$HTML_PATH" \
@@ -119,7 +119,7 @@ LAST30DAYS_PUBLISH_PASSWORD="${PUBLISH_PASSWORD:-}" \
   >/dev/null
 ```
 
-The hosted URL appears on stderr as `[last30days] Published HTML to https://...`. Confirm the result with the hosted URL. If the user chose password protection, also repeat the shared password they selected so they can send the URL and password together. The engine writes URL metadata to `<HTML_PATH>.publish.json`. The provider may return an `update_key`; treat it as secret. The engine deliberately does not write the update key to stdout, the HTML artifact, or `.publish.json` companion metadata.
+The hosted URL appears on stderr as `[spark-journal] Published HTML to https://...`. Confirm the result with the hosted URL. If the user chose password protection, also repeat the shared password they selected so they can send the URL and password together. The engine writes URL metadata to `<HTML_PATH>.publish.json`. The provider may return an `update_key`; treat it as secret. The engine deliberately does not write the update key to stdout, the HTML artifact, or `.publish.json` companion metadata.
 
 ## Chat handoff after saving
 
@@ -132,7 +132,7 @@ When HTML is the requested deliverable - whether by `--emit=html`, `--emit:html`
 Respond with a concise handoff that includes the next-step choices:
 
 ```text
-🌐 last30days v{VERSION} · synced {YYYY-MM-DD}
+🌐 spark-journal v{VERSION} · synced {YYYY-MM-DD}
 
 📎 Shareable brief saved to <absolute HTML path>
 
@@ -146,7 +146,7 @@ If the user chooses open, open the HTML file when the host can safely open local
 
 ### Normal report plus HTML copy
 
-When the user asked for a normal `/last30days` report and also asked for an HTML copy, keep the full chat synthesis and append this artifact block after the invitation:
+When the user asked for a normal `/spark-journal` report and also asked for an HTML copy, keep the full chat synthesis and append this artifact block after the invitation:
 
 ```text
 📎 Shareable brief saved to <absolute HTML path>
@@ -163,14 +163,14 @@ If the user chooses open, open it when the host can safely open local files; oth
 
 The engine's `--emit=html` renderer combines:
 
-- The badge (`🌐 last30days vX.Y.Z · synced YYYY-MM-DD`) at the top
+- The badge (`🌐 spark-journal vX.Y.Z · synced YYYY-MM-DD`) at the top
 - A single inline metadata line (`{date range} · {active sources}`) below the badge
 - Your synthesis verbatim, with prose labels promoted to `<h2>` and bold lead-ins preserved
 - All `[name](url)` citations rendered as `<a>` tags
 - The engine footer (`✅ All agents reported back!` tree) preserved verbatim in monospace
 - A colophon with the topic and a re-run hint
 
-The renderer strips engine-internal noise that doesn't belong in a shareable artifact: the `# last30days vX.Y.Z: TOPIC` debug file header, the model-facing `> Safety note:` blockquote, and the `I'm now an expert on X` invitation block. Data quality warnings (degraded run, thin evidence, etc.) stay in the engine's stderr logs - they never leak into the share-ready file.
+The renderer strips engine-internal noise that doesn't belong in a shareable artifact: the `# spark-journal vX.Y.Z: TOPIC` debug file header, the model-facing `> Safety note:` blockquote, and the `I'm now an expert on X` invitation block. Data quality warnings (degraded run, thin evidence, etc.) stay in the engine's stderr logs - they never leak into the share-ready file.
 
 ## Comparison mode
 
@@ -178,17 +178,17 @@ Same flow when the topic is `X vs Y` (or `X vs Y vs Z`). The engine routes throu
 
 ## Follow-up turn
 
-If the user runs `/last30days OpenClaw` normally, sees the synthesis in chat, and THEN explicitly refers back to that visible synthesis ("save that as HTML", "make this shareable", "turn the above into HTML"), do the same save flow on the synthesis you wrote in the previous turn. Do not re-research; the synthesis is already in the conversation history. Just write it to the temp file and call the engine with `--emit=html --synthesis-file`, then use the normal-report-plus-HTML artifact block.
+If the user runs `/spark-journal OpenClaw` normally, sees the synthesis in chat, and THEN explicitly refers back to that visible synthesis ("save that as HTML", "make this shareable", "turn the above into HTML"), do the same save flow on the synthesis you wrote in the previous turn. Do not re-research; the synthesis is already in the conversation history. Just write it to the temp file and call the engine with `--emit=html --synthesis-file`, then use the normal-report-plus-HTML artifact block.
 
 If the follow-up instead asks for a new HTML deliverable ("give it to me in HTML", `--emit=html`, `--html`) rather than referring back to an already-visible report, treat it as HTML-as-deliverable mode.
 
-The engine will try to reuse `~/.config/last30days/last-report.json` for that second invocation when it is still within `LAST30DAYS_REPORT_CACHE_TTL_SECONDS` (default: one hour). If stderr says it is reusing cached report data, continue normally. If stderr says no matching cache exists, the cache may be stale; let the command finish only if you supplied the same scope flags as the original run. Otherwise stop and re-run with the original flags so the HTML footer does not describe a different dataset.
+The engine will try to reuse `~/.config/spark-journal/last-report.json` for that second invocation when it is still within `spark-journal_REPORT_CACHE_TTL_SECONDS` (default: one hour). If stderr says it is reusing cached report data, continue normally. If stderr says no matching cache exists, the cache may be stale; let the command finish only if you supplied the same scope flags as the original run. Otherwise stop and re-run with the original flags so the HTML footer does not describe a different dataset.
 
 ## What NOT to do
 
 - Do NOT save HTML if the user didn't ask. The sparse mode (no synthesis) produces a thin file; not useful as a shareable.
 - Do NOT add content to the temp file beyond your synthesis prose. The badge / footer / colophon come from the engine.
-- Do NOT change the file path convention. `${LAST30DAYS_MEMORY_DIR}/${SLUG}-brief.html` is the canonical location.
+- Do NOT change the file path convention. `${spark-journal_MEMORY_DIR}/${SLUG}-brief.html` is the canonical location.
 - Do NOT silently overwrite an existing file. The `--emit=html` output is written via a shell redirect (`>| "$HTML_PATH"`), which OVERWRITES the collision-guarded path — use `>|` not `>` because `set -o noclobber` refuses plain `>` when the file already exists. The collision guard in step 2 handles same-topic re-runs: if `{slug}-brief.html` already exists it date-suffixes to `{slug}-brief-YYYY-MM-DD.html`. Always report whichever path the redirect actually used in the chat handoff.
 - Do NOT include the data quality warning text in the temp file or in your final chat line. Warnings are an engine-stderr concern, not an artifact concern.
 - Do NOT publish, upload, or send the HTML to a third-party service as part of the local save flow.
@@ -201,4 +201,4 @@ The engine will try to reuse `~/.config/last30days/last-report.json` for that se
 - **Topic with shell-special characters** (quotes, ampersands): the temp filename uses a slugified version, but the engine receives the raw topic. The `cat <<'SYNTHESIS_EOF'` quoted heredoc form handles arbitrary content without expansion. Your synthesis text can include any character.
 - **Very long synthesis**: no upper bound. The engine handles long markdown bodies. Just paste verbatim.
 - **Synthesis with images or non-ASCII**: emoji and Unicode pass through. Image tags pass through as raw HTML; the renderer doesn't transform them. If you didn't include images in chat, don't add them here.
-- **No `${LAST30DAYS_MEMORY_DIR}` set**: defaults to `~/Documents/Last30Days/` per the SKILL.md `Configuration` section.
+- **No `${spark-journal_MEMORY_DIR}` set**: defaults to `~/Documents/spark-journal/` per the SKILL.md `Configuration` section.

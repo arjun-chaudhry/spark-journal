@@ -1,4 +1,4 @@
-"""Deterministic, local-only document corpus source.
+﻿"""Deterministic, local-only document corpus source.
 
 The corpus adapter deliberately has no HTTP dependency. It scans explicitly
 registered directories, extracts small text documents (and PDFs only when the
@@ -30,7 +30,7 @@ MAX_CACHE_TEXT_CHARS = MAX_TEXT_CHARS
 MAX_CACHE_BYTES = 50 * 1024 * 1024
 MAX_CACHE_ENTRIES = 2_000
 CACHE_FILENAME = "corpus-cache.json"
-CACHE_SCHEMA_VERSION = "last30days-corpus-cache/v2"
+CACHE_SCHEMA_VERSION = "spark-journal-corpus-cache/v2"
 
 _CACHE_LOCK = threading.Lock()
 

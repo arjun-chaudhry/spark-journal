@@ -1,4 +1,4 @@
-"""Bluesky search via AT Protocol (requires app password).
+﻿"""Bluesky search via AT Protocol (requires app password).
 
 Uses bsky.social for auth and api.bsky.app for post search (the canonical
 authenticated AppView). The previous default `public.api.bsky.app` is the
@@ -31,8 +31,8 @@ def _resolve_search_url(config: Optional[Dict[str, Any]] = None) -> str:
 
     Default is api.bsky.app. Override via BSKY_SEARCH_HOST in shell env or
     .env file. The project's env.py loads .env into config but not into
-    os.environ, so check both — same hybrid pattern as last30days.py for
-    LAST30DAYS_STORE.
+    os.environ, so check both — same hybrid pattern as spark-journal.py for
+    spark-journal_STORE.
 
     Hardens user-supplied host values against three common mis-configurations:
     whitespace (e.g. " api.bsky.app "), embedded path components (e.g.

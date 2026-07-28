@@ -1,4 +1,4 @@
-"""Keyless web search (floor tier for engine-side general web).
+﻿"""Keyless web search (floor tier for engine-side general web).
 
 Returns ranked web results for a query with no API key. This is strictly the
 FLOOR of the search-source ladder:
@@ -13,7 +13,7 @@ Three vendor-neutral rungs, all stdlib-only via :mod:`http`:
   1. DuckDuckGo HTML endpoint (no key, no instance to maintain).
   2. Startpage HTML results, tried when DuckDuckGo yields nothing — notably
      when DuckDuckGo anomaly-blocks a datacenter IP with a 202 challenge page.
-  3. A configurable SearXNG instance returning JSON (``LAST30DAYS_SEARXNG_URL``),
+  3. A configurable SearXNG instance returning JSON (``spark-journal_SEARXNG_URL``),
      tried when the HTML rungs yield nothing.
 
 Never raises. Returns results in the same dict shape as the paid backends in
@@ -109,7 +109,7 @@ def keyless_search(
         items = _search_startpage(query, count)
         used = "startpage"
     if not items:
-        searxng_url = (config.get("LAST30DAYS_SEARXNG_URL") or "").strip()
+        searxng_url = (config.get("spark-journal_SEARXNG_URL") or "").strip()
         if searxng_url:
             items = _search_searxng(query, count, searxng_url)
             used = "searxng"

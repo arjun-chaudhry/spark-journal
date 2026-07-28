@@ -1,4 +1,4 @@
-"""First-run setup wizard for last30days.
+﻿"""First-run setup wizard for spark-journal.
 
 Detects first run, performs auto-setup (cookie extraction + yt-dlp check),
 and writes configuration. The actual wizard UI is SKILL.md-driven (the LLM
@@ -29,7 +29,7 @@ def is_first_run(config: Dict[str, Any]) -> bool:
     return not config.get("SETUP_COMPLETE")
 
 
-_WELCOME_TEXT = """Welcome to /last30days! I research any topic across Reddit, X, YouTube, TikTok, Digg, arXiv, Techmeme, HN, Polymarket & more - what people actually said in the last 30 days. Let's get you set up (~30s).
+_WELCOME_TEXT = """Welcome to /spark-journal! I research any topic across Reddit, X, YouTube, TikTok, Digg, arXiv, Techmeme, HN, Polymarket & more - what people actually said in the last 30 days. Let's get you set up (~30s).
 
 I synthesize what people are actually saying right now across social, news, and market sources.
 
@@ -170,7 +170,7 @@ DIGG_INSTALL_TIMEOUT = 300
 DIGG_CLI_BIN = "digg-pp-cli"
 # Pin the catalog installer; matches printing-press-library npm 0.1.16 default
 # ($HOME/.local/bin on macOS/Linux).
-PRINTING_PRESS_NPM = "@mvanhorn/printing-press-library@0.1.16"
+PRINTING_PRESS_NPM = "@arjun-chaudhry/printing-press-library@0.1.16"
 DIGG_INSTALL_CMD = f"npx -y {PRINTING_PRESS_NPM} install digg --cli-only"
 
 
@@ -231,7 +231,7 @@ def _install_digg_cli() -> Tuple[bool, str, str, str]:
 
     Mirrors the yt-dlp/brew auto-install: it never raises, and degrades to a
     recommend-only outcome when the installer is unavailable. Uses
-    ``@mvanhorn/printing-press-library`` (``--cli-only``) — the same catalog
+    ``@arjun-chaudhry/printing-press-library`` (``--cli-only``) — the same catalog
     installer as pp-digg; Hermes/OpenClaw skill wiring is irrelevant here.
 
     Returns ``(engine_active, action, stderr, off_path_binary)`` where
@@ -422,7 +422,7 @@ def write_setup_config(env_path: Path, from_browser: str | None = None) -> bool:
     Appends to existing file without overwriting existing keys.
 
     Args:
-        env_path: Path to the .env file (e.g. ~/.config/last30days/.env)
+        env_path: Path to the .env file (e.g. ~/.config/spark-journal/.env)
         from_browser: Browser extraction mode to persist. Pass the browser that
             actually yielded cookies (e.g. "firefox") to fast-path future runs.
             Pass None (default) to NOT pin FROM_BROWSER — the steady-state
@@ -481,7 +481,7 @@ def write_api_key(env_path: Path, api_key: str, key_name: str = "SCRAPECREATORS_
     clobber a key the user may have set by hand).
 
     Args:
-        env_path: Path to the .env file (e.g. ~/.config/last30days/.env).
+        env_path: Path to the .env file (e.g. ~/.config/spark-journal/.env).
         api_key: The raw key value to persist.
         key_name: The env var name to write (default SCRAPECREATORS_API_KEY).
 
@@ -872,7 +872,7 @@ def _device_handle_path() -> Path:
         pass
     import tempfile
 
-    return Path(tempfile.gettempdir()) / "last30days-github-device-handle.json"
+    return Path(tempfile.gettempdir()) / "spark-journal-github-device-handle.json"
 
 
 def _start_device_flow() -> "Tuple[Dict[str, Any], Optional[Dict[str, Any]]]":

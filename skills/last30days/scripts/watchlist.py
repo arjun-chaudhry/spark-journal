@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-"""Topic watchlist management for last30days."""
+﻿#!/usr/bin/env python3
+"""Topic watchlist management for spark-journal."""
 
 from __future__ import annotations
 
@@ -57,11 +57,11 @@ def _format_delivery_message(topic: str, counts: dict, mode: str) -> str:
     updated = counts.get("updated", 0)
     
     if mode == "announce":
-        return f"📰 *last30days update: {topic}*\n{new} new, {updated} updated"
+        return f"📰 *spark-journal update: {topic}*\n{new} new, {updated} updated"
     elif mode == "silent":
-        return f"last30days: {new} new findings for '{topic}'"
+        return f"spark-journal: {new} new findings for '{topic}'"
     else:
-        return f"last30days: Research complete for '{topic}'"
+        return f"spark-journal: Research complete for '{topic}'"
 
 
 def _send_slack_webhook(url: str, text: str) -> None:
@@ -75,7 +75,7 @@ def _send_generic_webhook(url: str, text: str) -> None:
         url,
         json_data={
             "message": text,
-            "source": "last30days",
+            "source": "spark-journal",
             "timestamp": time.time(),
         },
         timeout=10,
@@ -178,7 +178,7 @@ def _run_topic(topic: dict) -> dict:
         result = subprocess.run(
             [
                 sys.executable,
-                str(SCRIPT_DIR / "last30days.py"),
+                str(SCRIPT_DIR / "spark-journal.py"),
                 search_term,
                 "--emit=json",
                 "--json-profile=raw",
@@ -269,7 +269,7 @@ def cmd_config(args):
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Manage the last30days watchlist")
+    parser = argparse.ArgumentParser(description="Manage the spark-journal watchlist")
     sub = parser.add_subparsers(dest="command")
 
     add = sub.add_parser("add")

@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 # fmt: off
 # ruff: noqa: E402
-"""last30days CLI."""
+"""spark-journal CLI."""
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ def ensure_supported_python(version_info: tuple[int, int, int] | object | None =
         return
     req = f"{MIN_PYTHON[0]}.{MIN_PYTHON[1]}"
     sys.stderr.write(
-        f"last30days v3 requires Python {req}+.\n"
+        f"spark-journal v3 requires Python {req}+.\n"
         f"Detected Python {major}.{minor}.{micro}.\n"
         f"Install with:\n"
         f"  Mac:     brew install python@{req}\n"
@@ -107,15 +107,15 @@ def parse_as_of_date_arg(value: str) -> str:
 
 def resolve_requested_sources(args_search: str | None, config: dict) -> list[str] | None:
     """Resolve the requested source set: explicit --search wins, then the
-    LAST30DAYS_DEFAULT_SEARCH config key (env var or .env file), then None
+    spark-journal_DEFAULT_SEARCH config key (env var or .env file), then None
     (per-query default behavior). The config fallback lets users pin a fixed
     source set that survives upgrades without patching SKILL.md (#442).
     """
     if args_search:
         return parse_search_flag(args_search)
-    default_search = (config.get("LAST30DAYS_DEFAULT_SEARCH") or "").strip()
+    default_search = (config.get("spark-journal_DEFAULT_SEARCH") or "").strip()
     if default_search:
-        return parse_search_flag(default_search, flag_name="LAST30DAYS_DEFAULT_SEARCH")
+        return parse_search_flag(default_search, flag_name="spark-journal_DEFAULT_SEARCH")
     return None
 
 
@@ -182,7 +182,7 @@ def slugify(value: str, max_length: int = 180) -> str:
         # distinct long topics still get distinct, deterministic names.
         digest = hashlib.sha1(slug.encode("utf-8")).hexdigest()[:10]
         slug = f"{slug[:max_length].rstrip('-')}-{digest}"
-    return slug or "last30days"
+    return slug or "spark-journal"
 
 
 def _report_has_private_corpus(report: schema.Report) -> bool:
@@ -293,7 +293,7 @@ def save_output(
                     library_index.sync_library(
                         save_root,
                         save_root / "briefings",
-                        db_path=save_root / ".last30days-library.db",
+                        db_path=save_root / ".spark-journal-library.db",
                     )
             except (library_index.LibrarySearchUnavailable, OSError, sqlite3.DatabaseError):
                 # Saving research must not depend on the optional local index;
@@ -369,8 +369,8 @@ def _publish_password_for_args(
 ) -> str | None:
     return (
         args.publish_password
-        or env.read_secret_env("LAST30DAYS_PUBLISH_PASSWORD")
-        or (config or {}).get("LAST30DAYS_PUBLISH_PASSWORD")
+        or env.read_secret_env("spark-journal_PUBLISH_PASSWORD")
+        or (config or {}).get("spark-journal_PUBLISH_PASSWORD")
         or None
     )
 
@@ -496,7 +496,7 @@ def read_synthesis_file(path: str) -> str:
     try:
         return Path(path).expanduser().read_text(encoding="utf-8")
     except OSError as exc:
-        sys.stderr.write(f"[last30days] Cannot read --synthesis-file: {exc}\n")
+        sys.stderr.write(f"[spark-journal] Cannot read --synthesis-file: {exc}\n")
         raise SystemExit(2)
 
 
@@ -575,7 +575,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--no-verify-freshness",
         dest="verify_freshness",
         action="store_false",
-        help="Disable freshness verification configured by LAST30DAYS_VERIFY_FRESHNESS",
+        help="Disable freshness verification configured by spark-journal_VERIFY_FRESHNESS",
     )
     parser.add_argument(
         "--drill",
@@ -672,7 +672,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--publish", action="store_true",
                         help="With 'library feed', publish the HTML index and briefs (explicit opt-in; public by default); feed.xml remains local")
     parser.add_argument("--publish-password",
-                        help="Optional shared password for --publish-html or 'library feed --publish'; prefer LAST30DAYS_PUBLISH_PASSWORD to avoid exposing secrets in process lists")
+                        help="Optional shared password for --publish-html or 'library feed --publish'; prefer spark-journal_PUBLISH_PASSWORD to avoid exposing secrets in process lists")
     parser.add_argument("--store", action="store_true", help="Persist ranked findings to the SQLite research store")
     parser.add_argument("--x-handle", help="X handle for targeted supplemental search")
     parser.add_argument("--x-related", help="Comma-separated related X handles (searched with lower weight)")
@@ -738,7 +738,7 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=None,
         metavar="N",
-        help="Auto-discover N competitor entities and fan out last30days across all of them as a comparison (default N=2 → 3-way: original + 2 peers; range 1..6). Use --competitors-list to override discovery.",
+        help="Auto-discover N competitor entities and fan out spark-journal across all of them as a comparison (default N=2 → 3-way: original + 2 peers; range 1..6). Use --competitors-list to override discovery.",
     )
     parser.add_argument(
         "--competitors-list",
@@ -1091,7 +1091,7 @@ def _show_runtime_ui(
         progress.show_promo(promo, diag=diag)
 
 
-REPORT_CACHE_VERSION = "last30days-report-cache/v1"
+REPORT_CACHE_VERSION = "spark-journal-report-cache/v1"
 DEFAULT_REPORT_CACHE_TTL_SECONDS = 3600
 
 
@@ -1102,9 +1102,9 @@ def _last_report_cache_path() -> Path | None:
 
 
 def _report_cache_ttl_seconds(config: dict[str, object]) -> int:
-    raw = os.environ.get("LAST30DAYS_REPORT_CACHE_TTL_SECONDS")
+    raw = os.environ.get("spark-journal_REPORT_CACHE_TTL_SECONDS")
     if raw is None:
-        raw = config.get("LAST30DAYS_REPORT_CACHE_TTL_SECONDS")
+        raw = config.get("spark-journal_REPORT_CACHE_TTL_SECONDS")
     if raw is None or raw == "":
         return DEFAULT_REPORT_CACHE_TTL_SECONDS
     try:
@@ -1160,7 +1160,7 @@ def _write_last_run(
     except Exception as exc:
         # Never fatal, but never silent either (#787's lesson): callers that
         # promise cache state (drill chaining) branch on the return value.
-        sys.stderr.write(f"[last30days] warning: could not write run cache: {exc}\n")
+        sys.stderr.write(f"[spark-journal] warning: could not write run cache: {exc}\n")
         return False
 
 
@@ -1201,7 +1201,7 @@ def _load_last_report_cache(
         return entity_reports[0][1], None, cache_path
     except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
         sys.stderr.write(
-            f"[last30days] Could not read report cache {cache_path}: "
+            f"[spark-journal] Could not read report cache {cache_path}: "
             f"{type(exc).__name__}: {exc}\n"
         )
         return None
@@ -1214,7 +1214,7 @@ def _config_truthy(value: object) -> bool:
 def _freshness_enabled(args: argparse.Namespace, config: dict[str, object]) -> bool:
     if args.verify_freshness is not None:
         return bool(args.verify_freshness)
-    return _config_truthy(config.get("LAST30DAYS_VERIFY_FRESHNESS"))
+    return _config_truthy(config.get("spark-journal_VERIFY_FRESHNESS"))
 
 
 def _update_cached_freshness(
@@ -1245,7 +1245,7 @@ def _update_cached_freshness(
         return True
     except (OSError, json.JSONDecodeError, TypeError, ValueError) as exc:
         sys.stderr.write(
-            f"[last30days] warning: could not update freshness cache: {exc}\n"
+            f"[spark-journal] warning: could not update freshness cache: {exc}\n"
         )
         return False
 
@@ -1263,7 +1263,7 @@ def _verify_report_set(
         # An empty verdict list is a legitimate outcome, but a silent one has
         # already misled operators once; say why there is nothing to show.
         sys.stderr.write(
-            "[last30days] Freshness verification found no re-checkable claims"
+            "[spark-journal] Freshness verification found no re-checkable claims"
             " in this report; the verdict list is empty.\n"
         )
 
@@ -1277,14 +1277,14 @@ def _run_cached_freshness(
         ttl_seconds=_report_cache_ttl_seconds(config),
     )
     if cached is None:
-        sys.stderr.write("[last30days] No fresh cached report; run a research pass first.\n")
+        sys.stderr.write("[spark-journal] No fresh cached report; run a research pass first.\n")
         return 2
     report, entity_reports, cache_path = cached
     _verify_report_set(report, entity_reports, allow_network=not args.mock)
     if _update_cached_freshness(cache_path, report, entity_reports):
-        sys.stderr.write(f"[last30days] Updated freshness verdicts in {cache_path}\n")
+        sys.stderr.write(f"[spark-journal] Updated freshness verdicts in {cache_path}\n")
     else:
-        sys.stderr.write("[last30days] warning: freshness cache update failed\n")
+        sys.stderr.write("[spark-journal] warning: freshness cache update failed\n")
     return _render_save_and_print(args, report, entity_reports, None, config)
 
 
@@ -1320,13 +1320,13 @@ def _run_drill(
     )
     if cached is None:
         sys.stderr.write(
-            "[last30days] No fresh cached report; run a research pass first.\n"
+            "[spark-journal] No fresh cached report; run a research pass first.\n"
         )
         return 2
     report, entity_reports, cache_path = cached
     if entity_reports:
         sys.stderr.write(
-            "[last30days] Drill mode needs a single-topic cached report; "
+            "[spark-journal] Drill mode needs a single-topic cached report; "
             "run a research pass for one entity first.\n"
         )
         return 2
@@ -1346,7 +1346,7 @@ def _run_drill(
             clusters=matched_clusters,
         )
     except planner.DrillTargetError as exc:
-        sys.stderr.write(f"[last30days] {exc}\n")
+        sys.stderr.write(f"[spark-journal] {exc}\n")
         return 2
 
     sources = list(drill_plan.source_weights)
@@ -1430,22 +1430,22 @@ def _run_drill(
     else:
         merged.freshness_verdicts = []
     if _write_last_run(report.topic, merged):
-        sys.stderr.write(f"[last30days] Updated drill cache in {cache_path}\n")
+        sys.stderr.write(f"[spark-journal] Updated drill cache in {cache_path}\n")
     else:
         sys.stderr.write(
-            "[last30days] warning: drill cache update failed; the next drill "
+            "[spark-journal] warning: drill cache update failed; the next drill "
             "will see the pre-drill report\n"
         )
 
     store_default = str(
-        os.environ.get("LAST30DAYS_STORE")
-        or config.get("LAST30DAYS_STORE")
+        os.environ.get("spark-journal_STORE")
+        or config.get("spark-journal_STORE")
         or ""
     ).lower()
     if args.store or store_default in {"1", "true", "yes"}:
         counts = persist_report(merged, store_db=_scoped_store_db(args))
         sys.stderr.write(
-            f"[last30days] Stored {counts['new']} new, "
+            f"[spark-journal] Stored {counts['new']} new, "
             f"{counts['updated']} updated findings\n"
         )
 
@@ -1455,7 +1455,7 @@ def _run_drill(
             synthesis_md = read_synthesis_file(args.synthesis_file)
         else:
             sys.stderr.write(
-                "[last30days] Warning: --synthesis-file is only used with "
+                "[spark-journal] Warning: --synthesis-file is only used with "
                 "--emit=html; ignoring.\n"
             )
     return _render_save_and_print(args, merged, None, synthesis_md, config)
@@ -1522,7 +1522,7 @@ def _annotate_and_record_discovery_queue(
 
     Order matters: annotations describe the queue state BEFORE this run, so
     each topic is matched first and recorded second. The queue is on by
-    default; the resolved config value LAST30DAYS_DISCOVERY_QUEUE == "off"
+    default; the resolved config value spark-journal_DISCOVERY_QUEUE == "off"
     (env var or .env, via env.get_config) disables it. Scoped runs
     (--save-dir) write the scoped research.db, never the global one. Runs
     synchronously after the pipeline returns - this writes disk, so the
@@ -1534,7 +1534,7 @@ def _annotate_and_record_discovery_queue(
     double-count, and rows this very run identity stamped are not "prior"
     state, so retries render identically instead of claiming a resurfacing.
     """
-    queue_setting = str(config.get("LAST30DAYS_DISCOVERY_QUEUE") or "").strip().lower()
+    queue_setting = str(config.get("spark-journal_DISCOVERY_QUEUE") or "").strip().lower()
     if queue_setting == "off" or not report.topics:
         return report
 
@@ -1604,7 +1604,7 @@ def _record_discovery_queue_safely(
         )
     except (sqlite3.Error, OSError) as exc:
         sys.stderr.write(
-            f"[last30days] Warning: discovery queue unavailable ({exc}); "
+            f"[spark-journal] Warning: discovery queue unavailable ({exc}); "
             "continuing without queue annotations.\n"
         )
         return report
@@ -1625,7 +1625,7 @@ def _emit_and_save_discovery_report(
 
     if args.output:
         output_path = save_rendered_output(rendered, args.output)
-        sys.stderr.write(f"[last30days] Saved output to {output_path}\n")
+        sys.stderr.write(f"[spark-journal] Saved output to {output_path}\n")
     if args.save_dir:
         save_path = _save_discovery_output(
             rendered,
@@ -1634,7 +1634,7 @@ def _emit_and_save_discovery_report(
             save_dir=args.save_dir,
             suffix=args.save_suffix or "",
         )
-        sys.stderr.write(f"[last30days] Saved output to {save_path}\n")
+        sys.stderr.write(f"[spark-journal] Saved output to {save_path}\n")
     print(rendered)
 
 
@@ -1642,12 +1642,12 @@ def _discovery_strict_exit_code(
     source_status: dict[str, schema.SourceOutcome],
     config: dict[str, object],
 ) -> int:
-    """The ONE LAST30DAYS_STRICT_EXIT evaluation for every discovery
+    """The ONE spark-journal_STRICT_EXIT evaluation for every discovery
     invocation - the one-shot and all three protocol legs (issue #384's
     discovery counterpart). Rendering/output already happened by the time
     this runs; only the exit code shifts to 3 when strict exit is on and any
     source outcome is neither clean nor an expected skip."""
-    strict = str(config.get("LAST30DAYS_STRICT_EXIT") or "").strip().lower()
+    strict = str(config.get("spark-journal_STRICT_EXIT") or "").strip().lower()
     if strict not in {"1", "true", "yes", "on"}:
         return 0
     degraded = sorted(
@@ -1657,7 +1657,7 @@ def _discovery_strict_exit_code(
     if not degraded:
         return 0
     sys.stderr.write(
-        f"[last30days] strict-exit: degraded sources: {', '.join(degraded)}\n"
+        f"[spark-journal] strict-exit: degraded sources: {', '.join(degraded)}\n"
     )
     sys.stderr.flush()
     return 3
@@ -1749,14 +1749,14 @@ def _run_queue_cover(
 
     if not name:
         sys.stderr.write(
-            "[last30days] queue cover requires a topic name: "
+            "[spark-journal] queue cover requires a topic name: "
             'queue cover "<topic name>".\n'
         )
         return 2
     db_path = _scoped_store_db(args)
     if not Path(db_path or store.DB_PATH).exists():
         sys.stderr.write(
-            f"[last30days] No queued topic named {name!r}: the discovery queue "
+            f"[spark-journal] No queued topic named {name!r}: the discovery queue "
             "is empty (no discovery run has recorded topics yet).\n"
         )
         return 2
@@ -1766,7 +1766,7 @@ def _run_queue_cover(
         )
     if row is None:
         sys.stderr.write(
-            f"[last30days] No queued topic named {name!r}. Covering requires "
+            f"[spark-journal] No queued topic named {name!r}. Covering requires "
             "the exact topic name; run 'queue list' to see queued names.\n"
         )
         return 2
@@ -1795,9 +1795,9 @@ def _resolve_discovery_source_boundary(
             if source in pipeline.DISCOVERY_SOURCES
         ]
         if not discovery_sources:
-            origin = "--search" if args.search is not None else "LAST30DAYS_DEFAULT_SEARCH"
+            origin = "--search" if args.search is not None else "spark-journal_DEFAULT_SEARCH"
             sys.stderr.write(
-                f"[last30days] {origin} has no discovery-capable sources "
+                f"[spark-journal] {origin} has no discovery-capable sources "
                 f"(unsupported: {', '.join(requested_sources)}); discovery "
                 f"sweeps use: {', '.join(pipeline.DISCOVERY_SOURCES)}. Pass "
                 "--search with one of those (or clear the source filter) to "
@@ -1827,7 +1827,7 @@ def _run_discover(args: argparse.Namespace, config: dict[str, object]) -> int:
     # (--as-of and HTML rejection live in _main's shared --discover dispatch,
     # so every leg - one-shot or protocol - applies the same guards.)
     if args.synthesis_file:
-        sys.stderr.write("[last30days] Warning: --synthesis-file is not used by discovery mode.\n")
+        sys.stderr.write("[spark-journal] Warning: --synthesis-file is not used by discovery mode.\n")
 
     boundary = _resolve_discovery_source_boundary(args, config)
     if boundary is None:
@@ -1849,7 +1849,7 @@ def _run_discover(args: argparse.Namespace, config: dict[str, object]) -> int:
             enrich_requested_sources=enrich_requested_sources,
         )
     except ValueError as exc:
-        sys.stderr.write(f"[last30days] {exc}\n")
+        sys.stderr.write(f"[spark-journal] {exc}\n")
         return 2
 
     # Persistent topic queue: annotate this report from prior surfacings, then
@@ -1867,7 +1867,7 @@ def _discover_handoff_state_dir(args: argparse.Namespace) -> Path | None:
     """One resolver for every protocol leg's handoff files: the save dir when
     given (mirroring _scoped_store_db's scoping), else the config dir - the
     same base _last_report_cache_path uses. args.save_dir is read AFTER the
-    LAST30DAYS_MEMORY_DIR fallback in _main resolved it."""
+    spark-journal_MEMORY_DIR fallback in _main resolved it."""
     return discovery_handoff.handoff_state_dir(
         getattr(args, "save_dir", None), env.CONFIG_DIR
     )
@@ -1902,7 +1902,7 @@ def _run_discover_nominate(args: argparse.Namespace, config: dict[str, object]) 
             as_of_date=args.as_of_date,
         )
     except ValueError as exc:
-        sys.stderr.write(f"[last30days] {exc}\n")
+        sys.stderr.write(f"[spark-journal] {exc}\n")
         return 2
 
     if not result.pool:
@@ -2004,7 +2004,7 @@ def _run_discover_resume(args: argparse.Namespace, config: dict[str, object]) ->
         # these locations - but kept as a loud contract error, not an assert.
         raise discovery_handoff.HandoffContractError(
             "No handoff location available to write the pending report: "
-            "pass --save-dir or configure ~/.config/last30days/."
+            "pass --save-dir or configure ~/.config/spark-journal/."
         )
     pending_path = discovery_handoff.pending_report_path(state_dir)
     payload = {
@@ -2142,7 +2142,7 @@ def _run_discover_protocol_leg(
             return _run_discover_resume(args, config)
         return _run_discover_finalize(args, config)
     except discovery_handoff.HandoffContractError as exc:
-        sys.stderr.write(f"[last30days] {exc.message}\n")
+        sys.stderr.write(f"[spark-journal] {exc.message}\n")
         return 2
 
 
@@ -2156,12 +2156,12 @@ def _strict_exit_code(
 ) -> int:
     """Opt-in machine-detectable degraded-run signal (issue #384).
 
-    When LAST30DAYS_STRICT_EXIT is truthy, a run whose report carries any
+    When spark-journal_STRICT_EXIT is truthy, a run whose report carries any
     source outcome that is neither clean nor a plain no-results exits 3 so
     cron/CI wrappers can distinguish degraded coverage from success. Default
     behavior (exit 0, warning rendered in the report footer) is unchanged.
     """
-    raw = str(config.get("LAST30DAYS_STRICT_EXIT") or "").strip().lower()
+    raw = str(config.get("spark-journal_STRICT_EXIT") or "").strip().lower()
     if raw not in {"1", "true", "yes", "on"}:
         return 0
     reports = [report] + [rep for _, rep in (entity_reports or [])]
@@ -2174,7 +2174,7 @@ def _strict_exit_code(
     if not degraded:
         return 0
     sys.stderr.write(
-        f"[last30days] strict-exit: degraded sources: {', '.join(degraded)}\n"
+        f"[spark-journal] strict-exit: degraded sources: {', '.join(degraded)}\n"
     )
     sys.stderr.flush()
     return 3
@@ -2204,7 +2204,7 @@ def _audience_register_for_run(
     ):
         return registers.get_register()
     explicit = getattr(args, "register", None)
-    configured = config.get("LAST30DAYS_REGISTER")
+    configured = config.get("spark-journal_REGISTER")
     name = explicit or (str(configured) if configured else "default")
     # Preserve configs written by the pre-register ELI5 follow-up command.
     legacy_eli5 = str(config.get("ELI5_MODE") or "").strip().lower()
@@ -2224,10 +2224,10 @@ def _render_save_and_print(
     try:
         audience = _audience_register_for_run(args, config, entity_reports)
     except ValueError as exc:
-        sys.stderr.write(f"[last30days] {exc}\n")
+        sys.stderr.write(f"[spark-journal] {exc}\n")
         return 2
     if audience.name != "default":
-        sys.stderr.write(f"[last30days] Audience register: {audience.name}\n")
+        sys.stderr.write(f"[spark-journal] Audience register: {audience.name}\n")
         sys.stderr.flush()
     # Comparison HTML is the one case where the saved file's title and content
     # have to be overridden away from the leading entity's report. Compute the
@@ -2275,7 +2275,7 @@ def _render_save_and_print(
         )
         if args.emit == "html":
             publish_companion_paths.append(output_path)
-        sys.stderr.write(f"[last30days] Saved output to {output_path}\n")
+        sys.stderr.write(f"[spark-journal] Saved output to {output_path}\n")
         sys.stderr.flush()
     if args.save_dir:
         # Save the main topic's raw file (single-entity or comparison main).
@@ -2319,7 +2319,7 @@ def _render_save_and_print(
         )
         if args.emit == "html":
             publish_companion_paths.append(save_path)
-        sys.stderr.write(f"[last30days] Saved output to {save_path}\n")
+        sys.stderr.write(f"[spark-journal] Saved output to {save_path}\n")
         comparison_peer_paths: list[Path] = []
         # Competitor / vs-mode: also save a per-entity raw file for each peer.
         # Matches historical vs-mode behavior (N passes -> N save files).
@@ -2333,10 +2333,10 @@ def _render_save_and_print(
                     private=_report_has_private_corpus(entity_report),
                 )
                 comparison_peer_paths.append(peer_path)
-                sys.stderr.write(f"[last30days] Saved output to {peer_path}\n")
+                sys.stderr.write(f"[spark-journal] Saved output to {peer_path}\n")
             peers_display = ", ".join(str(path) for path in comparison_peer_paths)
             sys.stderr.write(
-                f"[last30days] Comparison artifact set: main={save_path}; "
+                f"[spark-journal] Comparison artifact set: main={save_path}; "
                 f"peers={peers_display}\n"
             )
         sys.stderr.flush()
@@ -2349,7 +2349,7 @@ def _render_save_and_print(
             publish_rendered = rendered
             if has_private_corpus:
                 sys.stderr.write(
-                    "[last30days] Excluding local corpus evidence and synthesis from published HTML.\n"
+                    "[spark-journal] Excluding local corpus evidence and synthesis from published HTML.\n"
                 )
                 if entity_reports:
                     publish_rendered = emit_comparison_output(
@@ -2378,17 +2378,17 @@ def _render_save_and_print(
                 password=_publish_password_for_args(args, config),
                 companion_paths=publish_companion_paths,
             )
-            sys.stderr.write(f"[last30days] Published HTML to {publish_result['url']}\n")
+            sys.stderr.write(f"[spark-journal] Published HTML to {publish_result['url']}\n")
             for warning in publish_result.get("_metadata_errors") or []:
-                sys.stderr.write(f"[last30days] Publish metadata warning: {warning}\n")
+                sys.stderr.write(f"[spark-journal] Publish metadata warning: {warning}\n")
             if publish_result.get("update_key"):
                 sys.stderr.write(
-                    "[last30days] ht-ml.app returned an update key; not writing it "
+                    "[spark-journal] ht-ml.app returned an update key; not writing it "
                     "to stdout, HTML, or publish metadata.\n"
                 )
             sys.stderr.flush()
         except Exception as exc:
-            sys.stderr.write(f"[last30days] HTML publish failed: {exc}\n")
+            sys.stderr.write(f"[spark-journal] HTML publish failed: {exc}\n")
             sys.stderr.flush()
     print(rendered)
     return _strict_exit_code(report, entity_reports, config)
@@ -2469,7 +2469,7 @@ def _validate_extra_argv(parser: argparse.ArgumentParser, topic: str, extra_argv
         message = (
             "unsupported Python CLI argument(s): "
             + ", ".join(skill_only)
-            + "; these are skill arguments and must not be forwarded to scripts/last30days.py"
+            + "; these are skill arguments and must not be forwarded to scripts/spark-journal.py"
         )
         if other_unknown:
             message += "; also unsupported: " + ", ".join(other_unknown)
@@ -2518,12 +2518,12 @@ def _run_library_feed(args: argparse.Namespace, config: dict[str, object]) -> in
 
     if args.publish_html:
         sys.stderr.write(
-            "[last30days] library feed uses --publish, not --publish-html.\n"
+            "[spark-journal] library feed uses --publish, not --publish-html.\n"
         )
         return 2
     if args.output:
         sys.stderr.write(
-            "[last30days] library feed writes index.html and feed.xml to --save-dir; "
+            "[spark-journal] library feed writes index.html and feed.xml to --save-dir; "
             "--output is not supported.\n"
         )
         return 2
@@ -2539,7 +2539,7 @@ def _run_library_feed(args: argparse.Namespace, config: dict[str, object]) -> in
     )
     entries, notes = library.scan_library(memory_dir, briefs_dir)
     feed_author = str(
-        config.get("LAST30DAYS_LIBRARY_OWNER") or "last30days research library"
+        config.get("spark-journal_LIBRARY_OWNER") or "spark-journal research library"
     )
     output_dir.mkdir(parents=True, exist_ok=True)
     library_id = library.get_or_create_library_id(output_dir)
@@ -2566,7 +2566,7 @@ def _run_library_feed(args: argparse.Namespace, config: dict[str, object]) -> in
             counter += 1
         existing_path.replace(backup)
         sys.stderr.write(
-            f"[last30days] {existing_path.name} was not generated by "
+            f"[spark-journal] {existing_path.name} was not generated by "
             f"library feed; preserved the original at {backup.name}\n"
         )
 
@@ -2604,17 +2604,17 @@ def _run_library_feed(args: argparse.Namespace, config: dict[str, object]) -> in
     index_html = html_render.render_library_index(entries)
     feed_path = output_dir / "feed.xml"
     index_path = output_dir / "index.html"
-    _preserve_hand_written_page(feed_path, "urn:last30days:research-library")
+    _preserve_hand_written_page(feed_path, "urn:spark-journal:research-library")
     _preserve_hand_written_page(
-        index_path, "Generated locally by <strong>last30days</strong>"
+        index_path, "Generated locally by <strong>spark-journal</strong>"
     )
     feed_path.write_text(feed_xml, encoding="utf-8")
     index_path.write_text(index_html, encoding="utf-8")
 
     for note in notes:
-        sys.stderr.write(f"[last30days] Library note: {note}\n")
+        sys.stderr.write(f"[spark-journal] Library note: {note}\n")
     sys.stderr.write(
-        f"[last30days] Library feed generated {len(entries)} brief(s): "
+        f"[spark-journal] Library feed generated {len(entries)} brief(s): "
         f"{index_path} and {feed_path}\n"
     )
 
@@ -2640,10 +2640,10 @@ def _run_library_feed(args: argparse.Namespace, config: dict[str, object]) -> in
             index_result = html_publish.publish_html(published_index, password=password)
             index_url = str(index_result["url"])
         except (html_publish.HtmlPublishError, KeyError, OSError) as exc:
-            sys.stderr.write(f"[last30days] Library publish failed: {exc}\n")
+            sys.stderr.write(f"[spark-journal] Library publish failed: {exc}\n")
             if entry_urls:
                 sys.stderr.write(
-                    f"[last30days] Partial publish: {len(entry_urls)} public brief "
+                    f"[spark-journal] Partial publish: {len(entry_urls)} public brief "
                     "page(s) were created before the failure.\n"
                 )
             return 1
@@ -2662,8 +2662,8 @@ def _run_library_feed(args: argparse.Namespace, config: dict[str, object]) -> in
             html_render.render_library_index(entries, entry_urls=entry_urls),
             encoding="utf-8",
         )
-        sys.stderr.write(f"[last30days] Published library to {index_url}\n")
-        sys.stderr.write(f"[last30days] Local Atom feed: {feed_path}\n")
+        sys.stderr.write(f"[spark-journal] Published library to {index_url}\n")
+        sys.stderr.write(f"[spark-journal] Local Atom feed: {feed_path}\n")
         print(
             f"Library: {index_url}\nFeed: {feed_path}\n"
             "Atom feed is local; host feed.xml on any static host (for example, GitHub Pages) "
@@ -2688,17 +2688,17 @@ def _run_library_search(
     from lib import library, library_index
 
     if not query.strip():
-        sys.stderr.write("[last30days] library search requires a non-empty query.\n")
+        sys.stderr.write("[spark-journal] library search requires a non-empty query.\n")
         return 2
     if args.publish or args.publish_html:
-        sys.stderr.write("[last30days] library search does not publish output.\n")
+        sys.stderr.write("[spark-journal] library search does not publish output.\n")
         return 2
     if args.emit != "compact":
-        sys.stderr.write("[last30days] library search currently supports text output only.\n")
+        sys.stderr.write("[spark-journal] library search currently supports text output only.\n")
         return 2
     if args.output:
         sys.stderr.write(
-            "[last30days] library search prints to stdout; --output is not supported.\n"
+            "[spark-journal] library search prints to stdout; --output is not supported.\n"
         )
         return 2
 
@@ -2711,7 +2711,7 @@ def _run_library_search(
                 memory_dir / "briefings" if args.save_dir else library.DEFAULT_BRIEFS_DIR
             ),
             db_path=(
-                memory_dir.resolve() / ".last30days-library.db"
+                memory_dir.resolve() / ".spark-journal-library.db"
                 if args.save_dir else library_index.DEFAULT_LIBRARY_DB
             ),
             # A scoped search must never merge in the shared store: one
@@ -2723,15 +2723,15 @@ def _run_library_search(
             ),
         )
     except library_index.LibrarySearchUnavailable as exc:
-        sys.stderr.write(f"[last30days] Library search unavailable: {exc}.\n")
+        sys.stderr.write(f"[spark-journal] Library search unavailable: {exc}.\n")
         return 2
     except (OSError, sqlite3.DatabaseError) as exc:
-        sys.stderr.write(f"[last30days] Library search failed: {exc}.\n")
+        sys.stderr.write(f"[spark-journal] Library search failed: {exc}.\n")
         return 1
     for note in synced.notes:
-        sys.stderr.write(f"[last30days] Library note: {note}\n")
+        sys.stderr.write(f"[spark-journal] Library note: {note}\n")
     if synced.rebuilt:
-        sys.stderr.write("[last30days] Rebuilt a corrupt library search index.\n")
+        sys.stderr.write("[spark-journal] Rebuilt a corrupt library search index.\n")
     print(render.render_library_search(query, matches), end="")
     return 0
 
@@ -2753,7 +2753,7 @@ def _main(
     extra_argv: list[str],
 ) -> int:
     if args.debug:
-        os.environ["LAST30DAYS_DEBUG"] = "1"
+        os.environ["spark-journal_DEBUG"] = "1"
 
     if args.welcome:
         from lib import setup_wizard
@@ -2765,12 +2765,12 @@ def _main(
     _validate_extra_argv(parser, topic, extra_argv)
     if args.publish and topic.lower() != "library feed":
         sys.stderr.write(
-            "[last30days] --publish is only supported by the 'library feed' command.\n"
+            "[spark-journal] --publish is only supported by the 'library feed' command.\n"
         )
         return 2
     config = env.get_config(policy=_config_policy_for_args(args, topic, extra_argv))
     resolved_corpus_dirs = corpus.resolve_directories(
-        args.corpus, config.get("LAST30DAYS_CORPUS_DIRS")
+        args.corpus, config.get("spark-journal_CORPUS_DIRS")
     )
     # EXCLUDE_SOURCES=corpus disables corpus retrieval entirely; the hosted
     # privacy bypass below must use the same predicate, or hosted users with
@@ -2784,25 +2784,25 @@ def _main(
         resolved_corpus_dirs = []
     if resolved_corpus_dirs:
         config["_CORPUS_DIRS"] = [str(path) for path in resolved_corpus_dirs]
-    if _config_truthy(config.get("LAST30DAYS_CORPUS_IN_EXPORT")):
+    if _config_truthy(config.get("spark-journal_CORPUS_IN_EXPORT")):
         config["_CORPUS_IN_EXPORT"] = True
     _propagate_config_to_environ(config)
 
-    # Env-var fallback for --save-dir, mirroring the LAST30DAYS_STORE pattern below.
+    # Env-var fallback for --save-dir, mirroring the spark-journal_STORE pattern below.
     # Uses `is None` / `is not None` checks (not truthy `or`) at every layer so that
-    # `--save-dir ""`, `LAST30DAYS_MEMORY_DIR=""` (shell-export-empty), and explicit
+    # `--save-dir ""`, `spark-journal_MEMORY_DIR=""` (shell-export-empty), and explicit
     # absence each correctly suppress save. An `or` chain would collapse the empty
     # shell-export into the same path as unset, silently falling through to .env.
     if args.save_dir is None:
-        env_val = os.environ.get("LAST30DAYS_MEMORY_DIR")
-        args.save_dir = env_val if env_val is not None else config.get("LAST30DAYS_MEMORY_DIR")
+        env_val = os.environ.get("spark-journal_MEMORY_DIR")
+        args.save_dir = env_val if env_val is not None else config.get("spark-journal_MEMORY_DIR")
 
     # Surface SSH-routing config as an env var so library modules (e.g.
     # youtube_yt) can read it without taking a config dependency. This
     # routes yt-dlp through `ssh <host>` to bypass YouTube's bot-wall on
     # datacenter IPs (see lib/youtube_yt.py for details).
-    if config.get("LAST30DAYS_YOUTUBE_SSH_HOST") and "LAST30DAYS_YOUTUBE_SSH_HOST" not in os.environ:
-        os.environ["LAST30DAYS_YOUTUBE_SSH_HOST"] = config["LAST30DAYS_YOUTUBE_SSH_HOST"]
+    if config.get("spark-journal_YOUTUBE_SSH_HOST") and "spark-journal_YOUTUBE_SSH_HOST" not in os.environ:
+        os.environ["spark-journal_YOUTUBE_SSH_HOST"] = config["spark-journal_YOUTUBE_SSH_HOST"]
 
     if args.preflight:
         requested_sources = resolve_requested_sources(args.search, config)
@@ -2911,24 +2911,24 @@ def _main(
     if args.discover is not None:
         if topic:
             sys.stderr.write(
-                "[last30days] --discover supplies the domain and cannot be combined "
+                "[spark-journal] --discover supplies the domain and cannot be combined "
                 "with a positional topic.\n"
             )
             return 2
         if args.drill:
-            sys.stderr.write("[last30days] --discover and --drill are mutually exclusive.\n")
+            sys.stderr.write("[spark-journal] --discover and --drill are mutually exclusive.\n")
             return 2
         # Shared guards for EVERY discover invocation - the one-shot and all
         # three protocol legs - hoisted here so no leg can drift: discovery
         # sweeps live listings (never --as-of) and has no HTML pipeline yet.
         if args.as_of_date:
             sys.stderr.write(
-                "[last30days] --as-of cannot be used with --discover because discovery "
+                "[spark-journal] --as-of cannot be used with --discover because discovery "
                 "sweeps current live listings.\n"
             )
             return 2
         if args.emit == "html" or args.publish_html:
-            sys.stderr.write("[last30days] discovery mode does not support HTML publishing yet.\n")
+            sys.stderr.write("[spark-journal] discovery mode does not support HTML publishing yet.\n")
             return 2
         # The three protocol legs are one-leg-per-invocation: each pairing
         # below asks for two legs at once, so name the combination and stop.
@@ -2940,13 +2940,13 @@ def _main(
         ):
             if conflict:
                 sys.stderr.write(
-                    f"[last30days] {first} and {second} are mutually exclusive: "
+                    f"[spark-journal] {first} and {second} are mutually exclusive: "
                     "each runs a different leg of the discovery protocol.\n"
                 )
                 return 2
         if args.angles is not None and not args.finalize:
             sys.stderr.write(
-                "[last30days] --angles only applies to --discover --finalize "
+                "[spark-journal] --angles only applies to --discover --finalize "
                 "runs; add --finalize or drop the flag.\n"
             )
             return 2
@@ -2958,7 +2958,7 @@ def _main(
             # "no save dir", and handoff state would land in the real config
             # dir - a side effect mock runs must never have.
             sys.stderr.write(
-                "[last30days] mock protocol legs require --save-dir to stay "
+                "[spark-journal] mock protocol legs require --save-dir to stay "
                 "side-effect-free: --mock with --nominate-only/--judgments/"
                 "--finalize would otherwise write handoff state into the real "
                 "config dir.\n"
@@ -2972,7 +2972,7 @@ def _main(
         # Without --discover this flag would silently no-op into a full
         # research run - reject it instead of ignoring the requested mode.
         sys.stderr.write(
-            "[last30days] --discover-shallow only applies to --discover runs; "
+            "[spark-journal] --discover-shallow only applies to --discover runs; "
             "add --discover [domain] or drop the flag.\n"
         )
         return 2
@@ -2986,13 +2986,13 @@ def _main(
     ):
         if present:
             sys.stderr.write(
-                f"[last30days] {flag_label} only applies to --discover runs; "
+                f"[spark-journal] {flag_label} only applies to --discover runs; "
                 "add --discover [domain] or drop the flag.\n"
             )
             return 2
     if args.angles is not None:
         sys.stderr.write(
-            "[last30days] --angles only applies to --discover --finalize runs; "
+            "[spark-journal] --angles only applies to --discover --finalize runs; "
             "add --discover --finalize or drop the flag.\n"
         )
         return 2
@@ -3000,12 +3000,12 @@ def _main(
     if args.drill:
         if topic:
             sys.stderr.write(
-                "[last30days] --drill uses the cached topic and cannot be "
+                "[spark-journal] --drill uses the cached topic and cannot be "
                 "combined with a new topic.\n"
             )
             return 2
         if args.publish_html and args.emit != "html":
-            sys.stderr.write("[last30days] --publish-html requires --emit=html\n")
+            sys.stderr.write("[spark-journal] --publish-html requires --emit=html\n")
             return 2
         if args.dedicated_subreddits:
             config["_dedicated_subreddits"] = [
@@ -3033,10 +3033,10 @@ def _main(
     try:
         _audience_register_for_run(args, config, None)
     except ValueError as exc:
-        sys.stderr.write(f"[last30days] {exc}\n")
+        sys.stderr.write(f"[spark-journal] {exc}\n")
         return 2
 
-    # Remote API path: when BOTH LAST30DAYS_API_KEY and LAST30DAYS_API_BASE are
+    # Remote API path: when BOTH spark-journal_API_KEY and spark-journal_API_BASE are
     # set (and --mock is not), the search runs through the configured remote API
     # instead of local sources; no local provider keys are needed (see
     # lib/hosted.py). With either env var unset, behavior below is byte-identical
@@ -3044,25 +3044,25 @@ def _main(
     if (
         topic
         and resolved_corpus_dirs
-        and env.read_secret_env("LAST30DAYS_API_KEY")
-        and os.environ.get("LAST30DAYS_API_BASE")
+        and env.read_secret_env("spark-journal_API_KEY")
+        and os.environ.get("spark-journal_API_BASE")
     ):
         sys.stderr.write(
-            "[last30days] Local corpus configured; bypassing the hosted backend so files stay on this machine.\n"
+            "[spark-journal] Local corpus configured; bypassing the hosted backend so files stay on this machine.\n"
         )
     if (
         topic
         and not args.diagnose
         and not args.mock
         and not args.record_fixtures
-        and env.read_secret_env("LAST30DAYS_API_KEY")
-        and os.environ.get("LAST30DAYS_API_BASE")
+        and env.read_secret_env("spark-journal_API_KEY")
+        and os.environ.get("spark-journal_API_BASE")
         and not resolved_corpus_dirs
     ):
         if _freshness_enabled(args, config):
             if args.verify_freshness is True:
                 sys.stderr.write(
-                    "[last30days] Freshness verification is not supported by the hosted backend; "
+                    "[spark-journal] Freshness verification is not supported by the hosted backend; "
                     "run locally or omit --verify-freshness.\n"
                 )
                 return 2
@@ -3071,7 +3071,7 @@ def _main(
             )
         if args.emit == "json" and args.json_profile == "agent":
             sys.stderr.write(
-                "[last30days] --json-profile=agent requires the local Report; "
+                "[spark-journal] --json-profile=agent requires the local Report; "
                 "the remote API backend only supports --json-profile=raw.\n"
             )
             return 2
@@ -3080,7 +3080,7 @@ def _main(
         try:
             audience = _audience_register_for_run(args, config, None)
         except ValueError as exc:
-            sys.stderr.write(f"[last30days] {exc}\n")
+            sys.stderr.write(f"[spark-journal] {exc}\n")
             return 2
         hosted_kwargs = {
             "emit": args.emit,
@@ -3114,7 +3114,7 @@ def _main(
         parser.print_usage(sys.stderr)
         return 2
     if args.publish_html and args.emit != "html":
-        sys.stderr.write("[last30days] --publish-html requires --emit=html\n")
+        sys.stderr.write("[spark-journal] --publish-html requires --emit=html\n")
         return 2
 
     synthesis_md = None
@@ -3122,9 +3122,9 @@ def _main(
         if args.emit == "html":
             synthesis_md = read_synthesis_file(args.synthesis_file)
         else:
-            sys.stderr.write("[last30days] Warning: --synthesis-file is only used with --emit=html; ignoring.\n")
+            sys.stderr.write("[spark-journal] Warning: --synthesis-file is only used with --emit=html; ignoring.\n")
 
-    if not os.environ.get("LAST30DAYS_SKIP_PREFLIGHT"):
+    if not os.environ.get("spark-journal_SKIP_PREFLIGHT"):
         from lib import preflight
         refuse_msg = preflight.check_class_1_trap(topic)
         if refuse_msg:
@@ -3139,7 +3139,7 @@ def _main(
         if cached is not None:
             cached_report, cached_entity_reports, cache_path = cached
             sys.stderr.write(
-                f"[last30days] Reusing cached report data from {cache_path}\n"
+                f"[spark-journal] Reusing cached report data from {cache_path}\n"
             )
             sys.stderr.flush()
             if _freshness_enabled(args, config):
@@ -3157,7 +3157,7 @@ def _main(
                 args, cached_report, cached_entity_reports, synthesis_md, config
             )
         sys.stderr.write(
-            "[last30days] No matching cached report data for "
+            "[spark-journal] No matching cached report data for "
             "--emit=html --synthesis-file; running fresh research.\n"
         )
         sys.stderr.flush()
@@ -3385,7 +3385,7 @@ def _main(
                         "the engine with a vs-topic plus --competitors-plan:\n"
                         "  1. WebSearch for '{topic} competitors' or '{topic} alternatives'.\n"
                         "  2. For each peer, WebSearch for handles/subs/github (Step 0.55).\n"
-                        "  3. Re-invoke: /last30days '{topic} vs {peer1} vs {peer2}' "
+                        "  3. Re-invoke: /spark-journal '{topic} vs {peer1} vs {peer2}' "
                         "--competitors-plan '{\"Peer1\":{\"x_handle\":\"h1\",\"subreddits\":"
                         "[\"s1\"],...},\"Peer2\":{...}}'.\n"
                         "See SKILL.md 'Competitor mode' for the full protocol.\n"
@@ -3529,20 +3529,20 @@ def _main(
         suppress_web_promo=bool(external_plan or comp_plan),
     )
     _write_last_run(original_topic, report, entity_reports=entity_reports)
-    # LAST30DAYS_STORE env var = persistence default-on. Read both os.environ
+    # spark-journal_STORE env var = persistence default-on. Read both os.environ
     # (for shell-exported users) and config (for users who set it in
-    # ~/.config/last30days/.env, which env.py loads but does not propagate
-    # to os.environ). Mirrors the LAST30DAYS_DEBUG / LAST30DAYS_SKIP_PREFLIGHT
+    # ~/.config/spark-journal/.env, which env.py loads but does not propagate
+    # to os.environ). Mirrors the spark-journal_DEBUG / spark-journal_SKIP_PREFLIGHT
     # convention; env-var or config wins, with `--store` flag still working.
     _store_env = (
-        os.environ.get("LAST30DAYS_STORE")
-        or config.get("LAST30DAYS_STORE")
+        os.environ.get("spark-journal_STORE")
+        or config.get("spark-journal_STORE")
         or ""
     ).lower()
     if args.store or _store_env in ("1", "true", "yes"):
         counts = persist_report(report, store_db=_scoped_store_db(args))
         sys.stderr.write(
-            f"[last30days] Stored {counts['new']} new, {counts['updated']} updated findings\n"
+            f"[spark-journal] Stored {counts['new']} new, {counts['updated']} updated findings\n"
         )
         sys.stderr.flush()
 

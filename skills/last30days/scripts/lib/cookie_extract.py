@@ -1,4 +1,4 @@
-"""Browser cookie extraction for last30days.
+﻿"""Browser cookie extraction for spark-journal.
 
 Extracts cookies from local browser databases (Firefox, Chrome, Brave, Safari)
 to enable zero-config authentication for services like X/Twitter.

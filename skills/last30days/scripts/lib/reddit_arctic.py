@@ -1,4 +1,4 @@
-"""Arctic-shift score resolver — post upvote counts by id, keyless and free.
+﻿"""Arctic-shift score resolver — post upvote counts by id, keyless and free.
 
 ``search.json`` and ``/comments/{id}.json`` are 403 keyless, and ``search.rss``
 (used for discovery) carries titles but NO score; the shreddit listing partials
@@ -27,7 +27,7 @@ MAX_BATCHES = 3     # cap total requests per run (bounds latency + rate-limit ri
 PACE_SECONDS = 0.4  # gap between batches; arctic-shift answers 422 "slow down"
 CACHE_MAX = 4096    # hard size bound so the in-run memo can never grow unbounded
 # In-run memo: base36 id -> {score, num_comments}. Module-level so repeated
-# fetch_scores calls within one `/last30days` run (e.g. across subqueries) reuse
+# fetch_scores calls within one `/spark-journal` run (e.g. across subqueries) reuse
 # results, but capped at CACHE_MAX entries (never reached in a normal CLI run).
 # Tests clear it via reddit_arctic._cache.clear().
 _cache: Dict[str, Dict[str, int]] = {}

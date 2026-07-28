@@ -1,4 +1,4 @@
-package tools
+﻿package tools
 
 import (
 	"strings"
@@ -6,12 +6,12 @@ import (
 )
 
 func TestPreflightRunArgsDefaultTextIsSafe(t *testing.T) {
-	t.Setenv("LAST30DAYS_MEMORY_DIR", "")
+	t.Setenv("spark-journal_MEMORY_DIR", "")
 	args := preflightRunArgs("text")
 	want := []string{
 		"--preflight",
 		"--preflight-report-on-save-dir",
-		"~/Documents/Last30Days",
+		"~/Documents/spark-journal",
 	}
 	if strings.Join(args, "\x00") != strings.Join(want, "\x00") {
 		t.Fatalf("args = %#v, want %#v", args, want)
@@ -19,12 +19,12 @@ func TestPreflightRunArgsDefaultTextIsSafe(t *testing.T) {
 }
 
 func TestPreflightRunArgsJSONIsSafeAndStructured(t *testing.T) {
-	t.Setenv("LAST30DAYS_MEMORY_DIR", "/tmp/last30days-reports")
+	t.Setenv("spark-journal_MEMORY_DIR", "/tmp/spark-journal-reports")
 	args := preflightRunArgs("json")
 	want := []string{
 		"--preflight",
 		"--preflight-report-on-save-dir",
-		"/tmp/last30days-reports",
+		"/tmp/spark-journal-reports",
 		"--emit=json",
 	}
 	if strings.Join(args, "\x00") != strings.Join(want, "\x00") {

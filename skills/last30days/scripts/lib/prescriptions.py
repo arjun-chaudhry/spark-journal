@@ -1,4 +1,4 @@
-"""Fix-prescription registry: the single remediation vocabulary (KTD 7).
+﻿"""Fix-prescription registry: the single remediation vocabulary (KTD 7).
 
 Each (source, failure mode) entry carries a cause line, a natural-language
 fix, an exact CLI fix, and an optional CONFIGURATION.md anchor. Two real
@@ -35,7 +35,7 @@ from . import health
 
 # Direct engine invocation prefix (scripting fallback; the slash-command UX
 # is "ask the agent to run setup ...", which is the natural-language form).
-ENGINE_CLI = "python3 skills/last30days/scripts/last30days.py"
+ENGINE_CLI = "python3 skills/spark-journal/scripts/spark-journal.py"
 SETUP_BROWSER_COOKIES_CLI = f"{ENGINE_CLI} setup --allow-browser-cookies"
 SETUP_GITHUB_CLI = f"{ENGINE_CLI} setup --github"
 
@@ -105,7 +105,7 @@ REGISTRY: Dict[Tuple[str, str], Prescription] = dict((
         cause="BSKY_HANDLE and/or BSKY_APP_PASSWORD are not set",
         fix_nl=(
             "generate an app password at bsky.app/settings/app-passwords and "
-            "add BSKY_HANDLE plus BSKY_APP_PASSWORD to ~/.config/last30days/.env"
+            "add BSKY_HANDLE plus BSKY_APP_PASSWORD to ~/.config/spark-journal/.env"
         ),
         fix_cli="BSKY_HANDLE=<your-handle> BSKY_APP_PASSWORD=<xxxx-xxxx-xxxx-xxxx>",
         anchor="bluesky-app-password-format-and-search-host",
@@ -118,7 +118,7 @@ REGISTRY: Dict[Tuple[str, str], Prescription] = dict((
         ),
         fix_nl=(
             "add a free Groq key from console.groq.com to "
-            "~/.config/last30days/.env so caption-free videos still get "
+            "~/.config/spark-journal/.env so caption-free videos still get "
             "transcripts (OPENAI_API_KEY also works as the paid backstop)"
         ),
         fix_cli="GROQ_API_KEY=<your-groq-key>",
@@ -197,7 +197,7 @@ REGISTRY: Dict[Tuple[str, str], Prescription] = dict((
         fix_nl=(
             "log into truthsocial.com in your browser and let setup read the "
             "session cookie, or copy the bearer token from your browser's dev "
-            "tools into ~/.config/last30days/.env"
+            "tools into ~/.config/spark-journal/.env"
         ),
         fix_cli=SETUP_BROWSER_COOKIES_CLI,
         anchor="api-keys-env",
@@ -206,7 +206,7 @@ REGISTRY: Dict[Tuple[str, str], Prescription] = dict((
         "xiaohongshu", "service_unreachable",
         cause=(
             "Xiaohongshu browser-session service is unreachable or not logged "
-            "in; last30days auto-probes http://localhost:18060 and "
+            "in; spark-journal auto-probes http://localhost:18060 and "
             "http://host.docker.internal:18060 unless XIAOHONGSHU_API_BASE is set"
         ),
         fix_nl=(

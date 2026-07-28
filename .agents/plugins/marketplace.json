@@ -1,14 +1,14 @@
-{
-  "name": "last30days-skill",
+﻿{
+  "name": "spark-journal-skill",
   "interface": {
-    "displayName": "last30days"
+    "displayName": "spark-journal"
   },
   "plugins": [
     {
-      "name": "last30days",
+      "name": "spark-journal",
       "source": {
         "source": "url",
-        "url": "https://github.com/mvanhorn/last30days-skill.git"
+        "url": "https://github.com/arjun-chaudhry/spark-journal-skill.git"
       },
       "policy": {
         "installation": "AVAILABLE",

@@ -1,4 +1,4 @@
-"""TikTok search via ScrapeCreators API for /last30days.
+﻿"""TikTok search via ScrapeCreators API for /spark-journal.
 
 Uses ScrapeCreators REST API to search TikTok by keyword, extract engagement
 metrics (views, likes, comments, shares), and fetch video transcripts.

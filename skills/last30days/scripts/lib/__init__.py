@@ -1,1 +1,1 @@
-# last30days library modules
+﻿# spark-journal library modules

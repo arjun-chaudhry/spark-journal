@@ -1,4 +1,4 @@
-"""v3.0.0 orchestration pipeline."""
+﻿"""v3.0.0 orchestration pipeline."""
 
 from __future__ import annotations
 
@@ -188,7 +188,7 @@ def available_sources(
     # reddit_public needs no API key - always available
     available.append("reddit")
     if corpus.resolve_directories(
-        config.get("_CORPUS_DIRS"), config.get("LAST30DAYS_CORPUS_DIRS")
+        config.get("_CORPUS_DIRS"), config.get("spark-journal_CORPUS_DIRS")
     ):
         available.append("corpus")
     if config.get("SCRAPECREATORS_API_KEY"):
@@ -1347,7 +1347,7 @@ def _records_to_discovery_topics(
             velocity_score=record["velocity_score"],
             sources=record["sources"],
             engagement_by_source=record["engagement_by_source"],
-            command=f'/last30days "{record["name"].replace(chr(34), chr(39))}"',
+            command=f'/spark-journal "{record["name"].replace(chr(34), chr(39))}"',
             evidence_urls=record["evidence_urls"],
             top_comment=record["top_comment"],
             corroboration_count=len(record["sources"]),
@@ -1495,11 +1495,11 @@ RESUME_DEEP_ENRICH_BUDGET_SECONDS = 450.0
 
 
 def _resume_enrich_budget_seconds(config: dict[str, Any]) -> float:
-    """Deep-tier batch budget: LAST30DAYS_ENRICH_BUDGET_SECONDS from the
+    """Deep-tier batch budget: spark-journal_ENRICH_BUDGET_SECONDS from the
     RESOLVED config dict only (env.get_config already layers the process env
     over the .env files) - never read from bare os.environ. Blank,
     non-numeric, or non-positive values fall back to the 450s default."""
-    raw = config.get("LAST30DAYS_ENRICH_BUDGET_SECONDS")
+    raw = config.get("spark-journal_ENRICH_BUDGET_SECONDS")
     if raw is None or str(raw).strip() == "":
         return RESUME_DEEP_ENRICH_BUDGET_SECONDS
     try:
@@ -1749,12 +1749,12 @@ def diagnose(
         key for key in ignored_project_keys if key in permission_preflight.ENDPOINT_OVERRIDE_KEYS
     ]
     local_writes: list[dict[str, str]] = []
-    if config.get("LAST30DAYS_MEMORY_DIR"):
-        local_writes.append({"kind": "report", "path": str(config.get("LAST30DAYS_MEMORY_DIR"))})
+    if config.get("spark-journal_MEMORY_DIR"):
+        local_writes.append({"kind": "report", "path": str(config.get("spark-journal_MEMORY_DIR"))})
     diag = {
         "providers": providers_status,
         "local_mode": not reasoning_provider_available,
-        "reasoning_provider": (config.get("LAST30DAYS_REASONING_PROVIDER") or "auto").lower(),
+        "reasoning_provider": (config.get("spark-journal_REASONING_PROVIDER") or "auto").lower(),
         "x_backend": x_status["source"],
         "bird_installed": x_status["bird_installed"],
         "bird_authenticated": x_status["bird_authenticated"],
@@ -1811,7 +1811,7 @@ def _load_library_context(
     save_dir: Path | str | None = None,
 ) -> tuple[list[schema.LibraryContext], str | None]:
     """Resolve compact prior-run context without making a research run depend on it."""
-    setting = str(config.get("LAST30DAYS_LIBRARY_CONTEXT") or "off").strip().lower()
+    setting = str(config.get("spark-journal_LIBRARY_CONTEXT") or "off").strip().lower()
     if mock or internal_subrun or setting in {"0", "false", "no", "off"}:
         return [], None
     if save_dir == "":
@@ -1820,21 +1820,21 @@ def _load_library_context(
     memory_dir = (
         save_dir
         if save_dir is not None
-        else config.get("LAST30DAYS_MEMORY_DIR") or library.DEFAULT_MEMORY_DIR
+        else config.get("spark-journal_MEMORY_DIR") or library.DEFAULT_MEMORY_DIR
     )
-    briefs_dir = config.get("_LAST30DAYS_LIBRARY_BRIEFS_DIR") or (
+    briefs_dir = config.get("_spark-journal_LIBRARY_BRIEFS_DIR") or (
         Path(memory_dir).expanduser() / "briefings"
         if save_dir is not None
         else library.DEFAULT_BRIEFS_DIR
     )
-    db_path = config.get("_LAST30DAYS_LIBRARY_DB")
+    db_path = config.get("_spark-journal_LIBRARY_DB")
     if not db_path:
         db_path = (
-            Path(memory_dir).expanduser().resolve() / ".last30days-library.db"
+            Path(memory_dir).expanduser().resolve() / ".spark-journal-library.db"
             if save_dir is not None
             else library_index.DEFAULT_LIBRARY_DB
         )
-    store_db = config.get("_LAST30DAYS_STORE_DB")
+    store_db = config.get("_spark-journal_STORE_DB")
     if not store_db:
         # Scoped runs read only a store inside the save dir (usually absent);
         # the shared store would leak other scopes' sightings into this one.
@@ -1915,7 +1915,7 @@ def run(
     from_date, to_date = dates.get_date_range(lookback_days, as_of_date=as_of_date)
     resolved_corpus_dirs = corpus.resolve_directories(
         corpus_dirs or config.get("_CORPUS_DIRS"),
-        config.get("LAST30DAYS_CORPUS_DIRS"),
+        config.get("spark-journal_CORPUS_DIRS"),
     )
     excluded_sources = {
         source.strip().lower()
@@ -3440,7 +3440,7 @@ def _fetch_x_backend(backend, subquery, from_date, to_date, depth, config):
         result = bird_x.search_x(query, from_date, to_date, depth=depth)
         items = bird_x.parse_bird_response(result, query=query)
     elif backend == "xai":
-        model = config.get("LAST30DAYS_X_MODEL") or config.get("XAI_MODEL_PIN") or providers.XAI_DEFAULT
+        model = config.get("spark-journal_X_MODEL") or config.get("XAI_MODEL_PIN") or providers.XAI_DEFAULT
         result = xai_x.search_x(config["XAI_API_KEY"], model, query, from_date, to_date, depth=depth)
         items = xai_x.parse_x_response(result)
     elif backend == "xurl":

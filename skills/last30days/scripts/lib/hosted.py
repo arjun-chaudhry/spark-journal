@@ -1,10 +1,10 @@
-"""Remote API client for last30days (optional hosted-backend mode).
+﻿"""Remote API client for spark-journal (optional hosted-backend mode).
 
-When both LAST30DAYS_API_KEY and LAST30DAYS_API_BASE are set, the engine
+When both spark-journal_API_KEY and spark-journal_API_BASE are set, the engine
 submits the topic to the configured remote API, polls until the run reaches a
 terminal status, streams narration progress to stderr, and renders the
 server's report. No local provider keys are required in this mode. The
-endpoint comes only from LAST30DAYS_API_BASE - there is no built-in default.
+endpoint comes only from spark-journal_API_BASE - there is no built-in default.
 
 Contract (API v1):
   POST {base}/search   Authorization: Bearer <key>
@@ -58,9 +58,9 @@ def _err(msg: str) -> None:
 
 def _api_base() -> str:
     # Endpoint comes only from the environment - no built-in default. Hosted
-    # mode is gated on this being set (see last30days.py), so by the time this
+    # mode is gated on this being set (see spark-journal.py), so by the time this
     # is called it is populated; an empty value means "not configured".
-    return (os.environ.get("LAST30DAYS_API_BASE") or "").rstrip("/")
+    return (os.environ.get("spark-journal_API_BASE") or "").rstrip("/")
 
 
 def _billing_url() -> str:
@@ -75,7 +75,7 @@ def _billing_url() -> str:
 def _auth_headers() -> dict[str, str]:
     # Key is read at call time and placed only in the request header;
     # it must never be interpolated into any log or output line.
-    key = env.read_secret_env("LAST30DAYS_API_KEY") or ""
+    key = env.read_secret_env("spark-journal_API_KEY") or ""
     return {"Authorization": f"Bearer {key}"}
 
 
@@ -117,7 +117,7 @@ def _handle_http_error(exc: http.HTTPError) -> int:
     if exc.status_code == 401:
         _err(
             "API key rejected: invalid or revoked. Check "
-            "LAST30DAYS_API_KEY (and LAST30DAYS_API_BASE), or unset them "
+            "spark-journal_API_KEY (and spark-journal_API_BASE), or unset them "
             "to fall back to local sources."
         )
         return 1
@@ -150,7 +150,7 @@ def _handle_clarify(resp: dict) -> int:
         sys.stderr.write(f"  {index}. {label}\n")
     sys.stderr.flush()
     _err(
-        "No search was started. Re-run last30days with the chosen angle "
+        "No search was started. Re-run spark-journal with the chosen angle "
         "folded into the topic text."
     )
     return EXIT_CLARIFY
@@ -200,7 +200,7 @@ def _poll_with_retry(search_id: str) -> dict | None:
 
 def _slugify(value: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
-    return slug or "last30days"
+    return slug or "spark-journal"
 
 
 def _save_output(topic: str, content: str, emit: str, save_dir: str, suffix: str):
@@ -252,7 +252,7 @@ def _render_complete(row: dict, topic: str, emit: str, save_dir, save_suffix: st
         save_content = raw_markdown or synthesis
     if save_dir:
         out_path = _save_output(topic, save_content, emit, save_dir, save_suffix)
-        sys.stderr.write(f"[last30days] Saved output to {out_path}\n")
+        sys.stderr.write(f"[spark-journal] Saved output to {out_path}\n")
         sys.stderr.flush()
     print(rendered)
     return 0
@@ -268,7 +268,7 @@ def run_hosted(
     register: str = "default",
 ) -> int:
     """Submit topic to the remote API, poll to terminal status, render report."""
-    _err(f"Running via last30days API ({_api_base()}), depth={depth}")
+    _err(f"Running via spark-journal API ({_api_base()}), depth={depth}")
     try:
         resp = submit(topic, depth, register=register)
     except http.HTTPError as exc:

@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-"""Run the v3 verification bundle for last30days."""
+﻿#!/usr/bin/env python3
+"""Run the v3 verification bundle for spark-journal."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from pathlib import Path
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PYTHON = sys.executable
-ENGINE = SKILL_ROOT / "scripts" / "last30days.py"
+ENGINE = SKILL_ROOT / "scripts" / "spark-journal.py"
 EVALUATOR = SKILL_ROOT / "scripts" / "evaluate_search_quality.py"
 
 SMOKE_TOPIC = "openclaw skills"
@@ -62,12 +62,12 @@ def verify_unit() -> dict[str, str]:
                 [
                     "rg",
                     "--files",
-                    "skills/last30days/scripts",
+                    "skills/spark-journal/scripts",
                     "tests",
                     "-g",
                     "*.py",
                     "-g",
-                    "!skills/last30days/scripts/lib/vendor/**",
+                    "!skills/spark-journal/scripts/lib/vendor/**",
                 ],
                 cwd=REPO_ROOT,
                 text=True,
@@ -89,7 +89,7 @@ def verify_smoke() -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     for provider, extra in SMOKE_CASES:
         env = os.environ.copy()
-        env["LAST30DAYS_REASONING_PROVIDER"] = provider
+        env["spark-journal_REASONING_PROVIDER"] = provider
         start = time.time()
         result = run_command(
             [PYTHON, str(ENGINE), SMOKE_TOPIC, "--emit=json", "--json-profile=raw", *extra],
@@ -163,7 +163,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--skip-latency", action="store_true", help="Skip live latency sampling")
     parser.add_argument("--baseline", default="HEAD~1")
     parser.add_argument("--candidate", default="WORKTREE")
-    parser.add_argument("--output-dir", default="/tmp/last30days-v3-verify")
+    parser.add_argument("--output-dir", default="/tmp/spark-journal-v3-verify")
     parser.add_argument("--quick-eval", action="store_true", help="Use evaluator quick mode")
     parser.add_argument("--eval-limit", type=int, default=20)
     parser.add_argument("--eval-timeout", type=int, default=240)

@@ -1,4 +1,4 @@
-"""DripStack source for last30days — premium financial newsletter search.
+﻿"""DripStack source for spark-journal — premium financial newsletter search.
 
 DripStack indexes paid Substack newsletters, analyst writeups, and financial
 podcasts. The search endpoint is free and public (no API key); it returns
@@ -34,7 +34,7 @@ from . import http
 
 _BASE_URL = "https://dripstack.xyz"
 _SEARCH_URL = f"{_BASE_URL}/api/v1/search"
-_UA = "Mozilla/5.0 (last30days dripstack source)"
+_UA = "Mozilla/5.0 (spark-journal dripstack source)"
 
 # Depth controls how many results we request per subquery.
 _DEPTH_LIMITS = {"quick": 5, "default": 10, "deep": 20}

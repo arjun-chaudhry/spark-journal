@@ -1,4 +1,4 @@
-"""Unified `doctor` health surface: aggregate, tier rollup, render (U4).
+﻿"""Unified `doctor` health surface: aggregate, tier rollup, render (U4).
 
 One command answers "what's broken, what's serving, and what do I run to
 fix it" by composing the existing health layers instead of replacing them:
@@ -265,9 +265,9 @@ def _finding_json(finding: backends.BackendFinding) -> Dict[str, Any]:
 def _host_native_web_note(config: Dict[str, Any]) -> str:
     """Doctor-local note when the host's own web search serves this run.
 
-    Keys on LAST30DAYS_NATIVE_SEARCH (via env.is_native_search) AND on
+    Keys on spark-journal_NATIVE_SEARCH (via env.is_native_search) AND on
     CLAUDECODE as a host signal - Claude Code always exposes a web-search tool,
-    but `doctor` run in a plain shell never sees the LAST30DAYS_NATIVE_SEARCH
+    but `doctor` run in a plain shell never sees the spark-journal_NATIVE_SEARCH
     the engine exports only for its own run, so without the CLAUDECODE signal it
     would mislabel a fine setup as "degraded/keyless". Messaging only: it does
     not change env.is_native_search or the engine's keyless-floor behavior. The
@@ -276,7 +276,7 @@ def _host_native_web_note(config: Dict[str, Any]) -> str:
     """
     if env.is_native_search(config):
         return (
-            "host-native search active (LAST30DAYS_NATIVE_SEARCH): the host's "
+            "host-native search active (spark-journal_NATIVE_SEARCH): the host's "
             "own web search serves this run; set a web key only if you want "
             "engine-side web search"
         )
@@ -465,7 +465,7 @@ def _youtube_record(config):
             else:
                 record["fix"] = (
                     "add youtube_comments to INCLUDE_SOURCES in "
-                    "~/.config/last30days/.env to enable YouTube comment text"
+                    "~/.config/spark-journal/.env to enable YouTube comment text"
                 )
     if notes:
         joined = "; ".join(notes)
@@ -583,7 +583,7 @@ def _perplexity_record(config):
             status="unconfigured", requires=requires,
             fix=(
                 "set PERPLEXITY_API_KEY or OPENROUTER_API_KEY in "
-                "~/.config/last30days/.env, then add perplexity to INCLUDE_SOURCES"
+                "~/.config/spark-journal/.env, then add perplexity to INCLUDE_SOURCES"
             ),
         )
     if "perplexity" in include:
@@ -685,7 +685,7 @@ def _library_record(config):
         )
     try:
         count = _count_saved_briefs(
-            config.get("LAST30DAYS_MEMORY_DIR") or library.DEFAULT_MEMORY_DIR
+            config.get("spark-journal_MEMORY_DIR") or library.DEFAULT_MEMORY_DIR
         )
     except Exception:
         return _record(
@@ -699,7 +699,7 @@ def _library_record(config):
         plural = "brief" if count == 1 else "briefs"
         note = (
             f"{count} saved {plural}; powers the 'From your library' block "
-            "(LAST30DAYS_LIBRARY_CONTEXT=off to hide)"
+            "(spark-journal_LIBRARY_CONTEXT=off to hide)"
         )
     return _record(status=health.OK, requires="none (local SQLite)", note=note)
 
@@ -738,11 +738,11 @@ _SOURCE_BUILDERS: Dict[str, Callable[[Dict[str, Any]], Dict[str, Any]]] = {
 # "configured" from "working" (the four-state audit) and powers --postmortem.
 # This is a read-only reuse of the engine's existing report cache - no new
 # writer. The schema stamp + filename mirror REPORT_CACHE_VERSION /
-# _last_report_cache_path() in last30days.py (the same mirror pattern the
+# _last_report_cache_path() in spark-journal.py (the same mirror pattern the
 # doctor-cache block below already uses for its own schema stamp).
 # ---------------------------------------------------------------------------
 
-REPORT_CACHE_SCHEMA_VERSION = "last30days-report-cache/v1"
+REPORT_CACHE_SCHEMA_VERSION = "spark-journal-report-cache/v1"
 REPORT_CACHE_FILENAME = "last-report.json"
 DEFAULT_REPORT_CACHE_TTL_SECONDS = 3600
 
@@ -1098,7 +1098,7 @@ def _cli_health_lines(report: Dict[str, Any]) -> List[str]:
 
 
 def render_text(report: Dict[str, Any]) -> str:
-    lines: List[str] = [f"last30days doctor — engine v{report['engine_version']}"]
+    lines: List[str] = [f"spark-journal doctor — engine v{report['engine_version']}"]
     config_block = report.get("config") or {}
     if config_block.get("global_env"):
         line = f"config: {config_block['global_env']}"
@@ -1208,11 +1208,11 @@ def build_postmortem(config: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def render_postmortem_text(pm: Dict[str, Any]) -> str:
-    lines = [f"last30days post-mortem — engine v{pm['engine_version']}"]
+    lines = [f"spark-journal post-mortem — engine v{pm['engine_version']}"]
     if not pm.get("present"):
         lines.append("")
         lines.append(
-            "No saved run found - run `/last30days <topic>` first, or "
+            "No saved run found - run `/spark-journal <topic>` first, or "
             "`doctor --probe` for a live check."
         )
         return "\n".join(lines) + "\n"
@@ -1279,7 +1279,7 @@ def render_postmortem_text(pm: Dict[str, Any]) -> str:
 # An explicit ``doctor`` (no ``--cached``) always runs live and refreshes.
 #
 # The payload carries a schema stamp (mirrors REPORT_CACHE_VERSION in
-# last30days.py) and a config fingerprint — a sha256 over the same
+# spark-journal.py) and a config fingerprint — a sha256 over the same
 # non-secret signals doctor already reports (key-presence booleans, backend
 # pin values, INCLUDE_SOURCES). A schema or fingerprint mismatch is treated
 # as stale, so a credential or pin change can never serve yesterday's
@@ -1291,9 +1291,9 @@ CACHE_FILENAME = "doctor-cache.json"
 
 # Bump when the cached payload/report shape changes incompatibly; a
 # mismatched (or absent) stamp is treated as an absent cache.
-DOCTOR_CACHE_SCHEMA_VERSION = "last30days-doctor-cache/v1"
+DOCTOR_CACHE_SCHEMA_VERSION = "spark-journal-doctor-cache/v1"
 
-# TTL in SECONDS (env-tunable via LAST30DAYS_DOCTOR_TTL; registered in
+# TTL in SECONDS (env-tunable via spark-journal_DOCTOR_TTL; registered in
 # lib/env.py's get_config key list so a .env-set value is not swallowed).
 DEFAULT_CACHE_TTL_SECONDS = 900
 
@@ -1321,10 +1321,10 @@ def cache_path() -> Optional[Path]:
 
 
 def cache_ttl_seconds(config: Dict[str, Any]) -> int:
-    """LAST30DAYS_DOCTOR_TTL in seconds; process env > config; default 900."""
-    raw: Any = os.environ.get("LAST30DAYS_DOCTOR_TTL")
+    """spark-journal_DOCTOR_TTL in seconds; process env > config; default 900."""
+    raw: Any = os.environ.get("spark-journal_DOCTOR_TTL")
     if raw is None:
-        raw = (config or {}).get("LAST30DAYS_DOCTOR_TTL")
+        raw = (config or {}).get("spark-journal_DOCTOR_TTL")
     if raw is None or raw == "":
         return DEFAULT_CACHE_TTL_SECONDS
     try:
@@ -1447,7 +1447,7 @@ def _write_cache(report: Dict[str, Any], config: Dict[str, Any]) -> bool:
         return True
     except Exception as exc:
         sys.stderr.write(
-            f"[last30days] WARNING: could not write doctor cache: "
+            f"[spark-journal] WARNING: could not write doctor cache: "
             f"{type(exc).__name__}: {exc}\n"
         )
         sys.stderr.flush()
@@ -1480,9 +1480,9 @@ DEFAULT_PROBE_TIMEOUT_SECONDS = 10
 
 def probe_timeout_seconds(config: Dict[str, Any]) -> int:
     """Per-source probe deadline; process env > config > default 10s."""
-    raw: Any = os.environ.get("LAST30DAYS_DOCTOR_PROBE_TIMEOUT")
+    raw: Any = os.environ.get("spark-journal_DOCTOR_PROBE_TIMEOUT")
     if raw is None:
-        raw = (config or {}).get("LAST30DAYS_DOCTOR_PROBE_TIMEOUT")
+        raw = (config or {}).get("spark-journal_DOCTOR_PROBE_TIMEOUT")
     if raw is None or raw == "":
         return DEFAULT_PROBE_TIMEOUT_SECONDS
     try:
@@ -1506,7 +1506,7 @@ def _http_ok(url: str, timeout: float) -> tuple:
     connection/timeout error means it did not."""
     try:
         req = urllib.request.Request(
-            url, headers={"User-Agent": "last30days-doctor"}
+            url, headers={"User-Agent": "spark-journal-doctor"}
         )
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             code = getattr(resp, "status", 200) or 200
@@ -1638,7 +1638,7 @@ def run(
         timeout = probe_timeout_seconds(config)
         probeable = _probeable_sources()
         sys.stderr.write(
-            f"[last30days] doctor live probe: checking {len(probeable)} free/CLI "
+            f"[spark-journal] doctor live probe: checking {len(probeable)} free/CLI "
             f"sources ({timeout}s each; no credit-gated sources - x/tiktok/"
             f"instagram/threads stay unverified)\n"
         )

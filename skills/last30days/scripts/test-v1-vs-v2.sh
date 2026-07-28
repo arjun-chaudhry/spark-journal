@@ -1,11 +1,11 @@
-#!/bin/bash
+﻿#!/bin/bash
 set -euo pipefail
 
 # === V1 vs V2 Skill Test Harness ===
 # Runs all 17 test queries through both v1 and v2 SKILL.md
 # using `claude --print` to capture real end-to-end output.
 
-SKILL_DIR="$HOME/.claude/skills/last30days"
+SKILL_DIR="$HOME/.claude/skills/spark-journal"
 REPO_DIR="${REPO_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 CLAUDE="${CLAUDE:-$(command -v claude || echo claude)}"
 
@@ -103,7 +103,7 @@ run_version() {
     # Run claude --print with the skill invocation
     # No timeout — claude --print exits on its own; kill manually if stuck
     if "$CLAUDE" --print \
-      "/last30days $query" \
+      "/spark-journal $query" \
       > "$outfile" 2>"$errfile"; then
       local end_time
       end_time=$(date +%s)

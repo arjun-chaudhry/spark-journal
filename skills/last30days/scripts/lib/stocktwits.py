@@ -1,4 +1,4 @@
-"""StockTwits source for last30days — ticker/crypto topics only.
+﻿"""StockTwits source for spark-journal — ticker/crypto topics only.
 
 StockTwits is a cashtag-native social network for traders. Every message can
 carry a self-reported Bullish/Bearish tag, which makes it uniquely good at one
@@ -32,7 +32,7 @@ import urllib.parse
 import urllib.request
 from typing import Any
 
-_UA = "Mozilla/5.0 (last30days stocktwits source)"
+_UA = "Mozilla/5.0 (spark-journal stocktwits source)"
 _STREAM_URL = "https://api.stocktwits.com/api/2/streams/symbol/{symbol}.json"
 _SEARCH_URL = "https://api.stocktwits.com/api/2/search/symbols.json"
 

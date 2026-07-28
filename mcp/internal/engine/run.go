@@ -1,4 +1,4 @@
-package engine
+﻿package engine
 
 import (
 	"bytes"
@@ -20,7 +20,7 @@ import (
 const DefaultPythonBinary = "python3"
 
 // MinPythonVersion mirrors the engine's MIN_PYTHON constant in
-// last30days.py. Surfaced in errors so users know what they're missing.
+// spark-journal.py. Surfaced in errors so users know what they're missing.
 const MinPythonVersion = "3.12"
 
 // PythonInstallURL is included in the missing-interpreter error so users
@@ -34,7 +34,7 @@ const DefaultTimeout = 5 * time.Minute
 
 // TimeoutEnvOverride lets operators override DefaultTimeout per install
 // (seconds, integer). Honored by Run when RunOptions.Timeout is zero.
-const TimeoutEnvOverride = "LAST30DAYS_MCP_TIMEOUT"
+const TimeoutEnvOverride = "spark-journal_MCP_TIMEOUT"
 
 // RunOptions configures one invocation of the embedded Python engine.
 // PythonPath is exposed so tests can substitute a stub interpreter without
@@ -42,7 +42,7 @@ const TimeoutEnvOverride = "LAST30DAYS_MCP_TIMEOUT"
 type RunOptions struct {
 	PythonPath string        // resolved python3 binary; empty means look up DefaultPythonBinary on PATH
 	CacheDir   string        // engine.Ensure result; lib/ here is added to PYTHONPATH
-	Args       []string      // arguments after last30days.py (topic, --emit=..., etc.)
+	Args       []string      // arguments after spark-journal.py (topic, --emit=..., etc.)
 	ExtraEnv   []string      // appended to os.Environ() for the child process
 	Timeout    time.Duration // zero means DefaultTimeout or TimeoutEnvOverride
 }
@@ -57,7 +57,7 @@ type RunResult struct {
 	TimedOut bool
 }
 
-// Run shells out to python3 with last30days.py inside cacheDir. The child
+// Run shells out to python3 with spark-journal.py inside cacheDir. The child
 // receives the parent environment (so MCPB user_config env-injection
 // reaches the engine) plus ExtraEnv and a PYTHONPATH that points at the
 // cache so the engine's `from lib import ...` statements resolve.
@@ -74,9 +74,9 @@ func Run(ctx context.Context, opts RunOptions) (*RunResult, error) {
 		return nil, err
 	}
 
-	scriptPath := filepath.Join(opts.CacheDir, "last30days.py")
+	scriptPath := filepath.Join(opts.CacheDir, "spark-journal.py")
 	if _, err := os.Stat(scriptPath); err != nil {
-		return nil, fmt.Errorf("engine: last30days.py not found in cache %s: %w", opts.CacheDir, err)
+		return nil, fmt.Errorf("engine: spark-journal.py not found in cache %s: %w", opts.CacheDir, err)
 	}
 
 	timeout := resolveTimeout(opts.Timeout)

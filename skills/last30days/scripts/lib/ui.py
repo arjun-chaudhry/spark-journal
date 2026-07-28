@@ -1,4 +1,4 @@
-"""Terminal UI utilities for last30days skill."""
+﻿"""Terminal UI utilities for spark-journal skill."""
 
 import sys
 import time
@@ -34,7 +34,7 @@ BANNER = f"""{Colors.PURPLE}{Colors.BOLD}
 {Colors.RESET}{Colors.DIM}  30 days of research. 30 seconds of work.{Colors.RESET}
 """
 
-MINI_BANNER = f"""{Colors.PURPLE}{Colors.BOLD}/last30days{Colors.RESET} {Colors.DIM}· researching...{Colors.RESET}"""
+MINI_BANNER = f"""{Colors.PURPLE}{Colors.BOLD}/spark-journal{Colors.RESET} {Colors.DIM}· researching...{Colors.RESET}"""
 
 # Fun status messages for each phase
 REDDIT_MESSAGES = [
@@ -220,7 +220,7 @@ BIRD_AUTH_HELP = f"""
 {Colors.YELLOW}Bird authentication failed.{Colors.RESET}
 
 To fix this:
-1. Add AUTH_TOKEN and CT0 to ~/.config/last30days/.env, or to trusted .claude/last30days.env with LAST30DAYS_TRUST_PROJECT_CONFIG=1
+1. Add AUTH_TOKEN and CT0 to ~/.config/spark-journal/.env, or to trusted .claude/spark-journal.env with spark-journal_TRUST_PROJECT_CONFIG=1
 2. Or set XAI_API_KEY for the xAI fallback backend
 """
 
@@ -228,7 +228,7 @@ BIRD_AUTH_HELP_PLAIN = """
 Bird authentication failed.
 
 To fix this:
-1. Add AUTH_TOKEN and CT0 to ~/.config/last30days/.env, or to trusted .claude/last30days.env with LAST30DAYS_TRUST_PROJECT_CONFIG=1
+1. Add AUTH_TOKEN and CT0 to ~/.config/spark-journal/.env, or to trusted .claude/spark-journal.env with spark-journal_TRUST_PROJECT_CONFIG=1
 2. Or set XAI_API_KEY for the xAI fallback backend
 """
 
@@ -306,7 +306,7 @@ class ProgressDisplay:
             sys.stderr.write(f"{Colors.DIM}Topic: {Colors.RESET}{Colors.BOLD}{self.topic}{Colors.RESET}\n\n")
         else:
             # Simple text for non-TTY
-            sys.stderr.write(f"/last30days · researching: {self.topic}\n")
+            sys.stderr.write(f"/spark-journal · researching: {self.topic}\n")
         sys.stderr.flush()
 
     def start_reddit(self):
@@ -521,7 +521,7 @@ def show_diagnostic_banner(diag: dict):
 
     if IS_TTY:
         lines.append(f"{Colors.DIM}┌─────────────────────────────────────────────────────┐{Colors.RESET}")
-        _header = f"/last30days v{_skill_version()} - Source Status"
+        _header = f"/spark-journal v{_skill_version()} - Source Status"
         lines.append(f"{Colors.DIM}│{Colors.RESET} {Colors.BOLD}{_header}{Colors.RESET}{' ' * (52 - len(_header))}{Colors.DIM}│{Colors.RESET}")
         lines.append(f"{Colors.DIM}│{Colors.RESET}                                                     {Colors.DIM}│{Colors.RESET}")
 
@@ -564,12 +564,12 @@ def show_diagnostic_banner(diag: dict):
             lines.append(f"{Colors.DIM}│{Colors.RESET}  {Colors.YELLOW}⚡ Web{Colors.RESET}       — Add BRAVE_API_KEY or SERPER_API_KEY {Colors.DIM}│{Colors.RESET}")
 
         lines.append(f"{Colors.DIM}│{Colors.RESET}                                                     {Colors.DIM}│{Colors.RESET}")
-        lines.append(f"{Colors.DIM}│{Colors.RESET}  Config: {Colors.BOLD}~/.config/last30days/.env{Colors.RESET}                  {Colors.DIM}│{Colors.RESET}")
+        lines.append(f"{Colors.DIM}│{Colors.RESET}  Config: {Colors.BOLD}~/.config/spark-journal/.env{Colors.RESET}                  {Colors.DIM}│{Colors.RESET}")
         lines.append(f"{Colors.DIM}└─────────────────────────────────────────────────────┘{Colors.RESET}")
     else:
         # Plain text for non-TTY (Claude Code / Codex)
         lines.append("┌─────────────────────────────────────────────────────┐")
-        _header_plain = f"/last30days v{_skill_version()} - Source Status"
+        _header_plain = f"/spark-journal v{_skill_version()} - Source Status"
         lines.append(f"│ {_header_plain}{' ' * (52 - len(_header_plain))}│")
         lines.append("│                                                     │")
 
@@ -605,7 +605,7 @@ def show_diagnostic_banner(diag: dict):
             lines.append("│  ⚡ Web       — Add BRAVE_API_KEY or SERPER_API_KEY │")
 
         lines.append("│                                                     │")
-        lines.append("│  Config: ~/.config/last30days/.env                  │")
+        lines.append("│  Config: ~/.config/spark-journal/.env                  │")
         lines.append("└─────────────────────────────────────────────────────┘")
 
     sys.stderr.write("\n".join(lines) + "\n\n")

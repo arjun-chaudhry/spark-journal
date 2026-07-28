@@ -1,4 +1,4 @@
-"""Offline FTS search across the saved research library and store sightings."""
+﻿"""Offline FTS search across the saved research library and store sightings."""
 
 from __future__ import annotations
 
@@ -15,9 +15,9 @@ from . import library
 
 DEFAULT_LIBRARY_DB = library.DEFAULT_BRIEFS_DIR.parent / "library.db"
 DEFAULT_STORE_DB = library.DEFAULT_BRIEFS_DIR.parent / "research.db"
-INDEX_FINGERPRINT_VERSION = "last30days-library-index/v2"
-LIBRARY_CONTEXT_START = "<!-- last30days:library-context:start -->"
-LIBRARY_CONTEXT_END = "<!-- last30days:library-context:end -->"
+INDEX_FINGERPRINT_VERSION = "spark-journal-library-index/v2"
+LIBRARY_CONTEXT_START = "<!-- spark-journal:library-context:start -->"
+LIBRARY_CONTEXT_END = "<!-- spark-journal:library-context:end -->"
 _TOKEN = re.compile(r"[^\W_]+", re.UNICODE)
 _MARKED_LIBRARY_CONTEXT = re.compile(
     rf"^{re.escape(LIBRARY_CONTEXT_START)}\s*$.*?"
@@ -29,8 +29,8 @@ _LEGACY_LIBRARY_CONTEXT = re.compile(
     re.MULTILINE | re.DOTALL,
 )
 _PRIVATE_CORPUS_BLOCK = re.compile(
-    r"<!-- LAST30DAYS_PRIVATE_CORPUS_START -->.*?"
-    r"<!-- LAST30DAYS_PRIVATE_CORPUS_END -->\s*",
+    r"<!-- spark-journal_PRIVATE_CORPUS_START -->.*?"
+    r"<!-- spark-journal_PRIVATE_CORPUS_END -->\s*",
     re.DOTALL,
 )
 

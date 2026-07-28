@@ -1,4 +1,4 @@
-"""Post-research quality score and upgrade nudge.
+﻿"""Post-research quality score and upgrade nudge.
 
 Computes a quality score based on 5 core sources and builds
 a nudge message describing what the user missed and how to fix it.
@@ -393,6 +393,6 @@ def _build_nudge_text(
             "ScrapeCreators key at scrapecreators.com (no affiliation)."
         )
     else:
-        lines.append("last30days has no affiliation with any API provider.")
+        lines.append("spark-journal has no affiliation with any API provider.")
 
     return "\n".join(lines)

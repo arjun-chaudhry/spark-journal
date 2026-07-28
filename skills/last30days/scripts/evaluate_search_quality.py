@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-"""Compare two last30days revisions on the v3 ranked candidate output."""
+﻿#!/usr/bin/env python3
+"""Compare two spark-journal revisions on the v3 ranked candidate output."""
 
 from __future__ import annotations
 
@@ -318,7 +318,7 @@ def create_eval_env() -> dict[str, str]:
         "LC_ALL": os.environ.get("LC_ALL", ""),
         "TMPDIR": os.environ.get("TMPDIR", ""),
         "PYTHONUTF8": "1",
-        "LAST30DAYS_CONFIG_DIR": "",
+        "spark-journal_CONFIG_DIR": "",
     }
     for key in EVAL_CREDENTIAL_ENV_KEYS:
         value = os.environ.get(key) or config.get(key)
@@ -327,10 +327,10 @@ def create_eval_env() -> dict[str, str]:
     return passthrough
 
 
-def run_last30days(repo_dir: Path, topic: str, *, search: str, timeout_seconds: int, quick: bool, mock: bool, env: dict[str, str]) -> dict[str, Any]:
-    engine = repo_dir / "skills" / "last30days" / "scripts" / "last30days.py"
+def run_spark-journal(repo_dir: Path, topic: str, *, search: str, timeout_seconds: int, quick: bool, mock: bool, env: dict[str, str]) -> dict[str, Any]:
+    engine = repo_dir / "skills" / "spark-journal" / "scripts" / "spark-journal.py"
     if not engine.exists():
-        engine = repo_dir / "scripts" / "last30days.py"
+        engine = repo_dir / "scripts" / "spark-journal.py"
     cmd = [sys.executable, str(engine), topic, "--emit=json"]
     # Current engines default to the stable agent export, while older revisions
     # used by the evaluator implicitly emit the raw report and do not recognize
@@ -368,7 +368,7 @@ def run_last30days(repo_dir: Path, topic: str, *, search: str, timeout_seconds: 
 
 
 def create_worktree(rev: str) -> Path:
-    worktree_dir = Path(tempfile.mkdtemp(prefix="last30days-eval-"))
+    worktree_dir = Path(tempfile.mkdtemp(prefix="spark-journal-eval-"))
     subprocess.run(
         ["git", "worktree", "add", "--detach", str(worktree_dir), rev],
         cwd=REPO_ROOT,
@@ -509,7 +509,7 @@ def parse_topics_file(path: Path) -> list[tuple[str, str]]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Compare two last30days revisions on ranked candidate quality")
+    parser = argparse.ArgumentParser(description="Compare two spark-journal revisions on ranked candidate quality")
     parser.add_argument("--baseline", default="HEAD~1")
     parser.add_argument("--candidate", default="WORKTREE")
     parser.add_argument("--search", default=DEFAULT_SEARCH)
@@ -538,7 +538,7 @@ def main() -> int:
         failures = []
         for topic, query_type in topics:
             try:
-                baseline_report = run_last30days(
+                baseline_report = run_spark-journal(
                     baseline_dir,
                     topic,
                     search=args.search,
@@ -547,7 +547,7 @@ def main() -> int:
                     mock=args.mock,
                     env=run_env,
                 )
-                candidate_report = run_last30days(
+                candidate_report = run_spark-journal(
                     candidate_dir,
                     topic,
                     search=args.search,

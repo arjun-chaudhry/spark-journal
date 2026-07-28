@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Test ScrapeCreators GitHub device auth flow from the CLI.
 
 Usage:
@@ -119,7 +119,7 @@ def main():
         print("=" * 50)
         print(f"Your ScrapeCreators API key: {api_key}")
         print("=" * 50)
-        print(f"\nTo use it: echo 'SCRAPECREATORS_API_KEY={api_key}' >> ~/.config/last30days/.env")
+        print(f"\nTo use it: echo 'SCRAPECREATORS_API_KEY={api_key}' >> ~/.config/spark-journal/.env")
     else:
         print("No api_key in profile response. Full response printed above.")
 

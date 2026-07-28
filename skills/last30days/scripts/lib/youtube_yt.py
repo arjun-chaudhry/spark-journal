@@ -1,4 +1,4 @@
-"""YouTube search and transcript extraction via yt-dlp for the v3.0.0 pipeline.
+﻿"""YouTube search and transcript extraction via yt-dlp for the v3.0.0 pipeline.
 
 Uses yt-dlp (https://github.com/yt-dlp/yt-dlp) for both YouTube search and
 transcript extraction. No API keys needed — just have yt-dlp installed.
@@ -37,7 +37,7 @@ TRANSCRIPT_LIMITS = {
 # Cumulative yt-dlp transcript-fetch stats for the current process. The final
 # report only sees post-pruning items, so it can't distinguish "fetches failed
 # (stale binary)" from "fetches succeeded but the videos were pruned later".
-# quality_nudge reads these via last30days.py to suppress the stale-yt-dlp
+# quality_nudge reads these via spark-journal.py to suppress the stale-yt-dlp
 # nudge when every attempted fetch actually succeeded. yt-dlp path only: the
 # nudge diagnoses the local binary, not the ScrapeCreators API.
 _TRANSCRIPT_FETCH_STATS = {"attempts": 0, "failures": 0}
@@ -164,7 +164,7 @@ def classify_run_failure(detail: str) -> str:
 def is_ytdlp_installed() -> bool:
     """Check if yt-dlp is available locally, or if SSH routing is configured.
 
-    When LAST30DAYS_YOUTUBE_SSH_HOST is set, returns True without a local check —
+    When spark-journal_YOUTUBE_SSH_HOST is set, returns True without a local check —
     yt-dlp lives on the remote host. Failures surface naturally on first use.
     """
     if _ytdlp_ssh_host():
@@ -181,7 +181,7 @@ _SSH_HOST_ALIAS_RE = re.compile(r"^[a-zA-Z0-9._-]+$")
 def _ytdlp_ssh_host() -> Optional[str]:
     """Return SSH host alias if yt-dlp should be routed via SSH, else None.
 
-    Set LAST30DAYS_YOUTUBE_SSH_HOST=<ssh-alias> (e.g. 'macmini') in the environment
+    Set spark-journal_YOUTUBE_SSH_HOST=<ssh-alias> (e.g. 'macmini') in the environment
     to route yt-dlp through SSH for residential IP egress. This bypasses
     YouTube's bot-wall on datacenter IPs (Hetzner, DigitalOcean, AWS, etc.)
     where ytsearch returns 0 results regardless of cookies.
@@ -199,17 +199,17 @@ def _ytdlp_ssh_host() -> Optional[str]:
     defense; this regex closes the door on the env var ever reaching ssh
     in the first place.
 
-    To use a value from ~/.config/last30days/.env, export it into the
+    To use a value from ~/.config/spark-journal/.env, export it into the
     environment before invoking the engine, e.g. in a wrapper:
-        set -a; source ~/.config/last30days/.env; set +a
-        python3 last30days.py "..."
+        set -a; source ~/.config/spark-journal/.env; set +a
+        python3 spark-journal.py "..."
     """
-    host = os.environ.get("LAST30DAYS_YOUTUBE_SSH_HOST", "").strip()
+    host = os.environ.get("spark-journal_YOUTUBE_SSH_HOST", "").strip()
     if not host:
         return None
     if not _SSH_HOST_ALIAS_RE.match(host):
         sys.stderr.write(
-            f"[youtube_yt] WARNING: LAST30DAYS_YOUTUBE_SSH_HOST={host!r} "
+            f"[youtube_yt] WARNING: spark-journal_YOUTUBE_SSH_HOST={host!r} "
             "does not look like a plain hostname/alias; ignoring. "
             "Expected pattern: letters, digits, dot, underscore, hyphen.\n"
         )
@@ -223,7 +223,7 @@ def _wrap_ytdlp_cmd(cmd: List[str]) -> List[str]:
     Args are shell-quoted to survive the remote shell. Uses BatchMode=yes so
     a misconfigured key fails fast instead of hanging on a password prompt.
     The `--` option terminator prevents an SSH option-injection if
-    LAST30DAYS_YOUTUBE_SSH_HOST were ever set to a value starting with `-`.
+    spark-journal_YOUTUBE_SSH_HOST were ever set to a value starting with `-`.
     """
     host = _ytdlp_ssh_host()
     if not host:
@@ -584,8 +584,8 @@ def _fetch_transcript_ytdlp_via_ssh(video_id: str, ssh_host: str) -> Optional[st
 
 
 def _ytdlp_sub_langs() -> str:
-    """Caption languages to try, from LAST30DAYS_YT_SUB_LANGS (default en,es,pt)."""
-    raw = os.environ.get("LAST30DAYS_YT_SUB_LANGS", "").strip()
+    """Caption languages to try, from spark-journal_YT_SUB_LANGS (default en,es,pt)."""
+    raw = os.environ.get("spark-journal_YT_SUB_LANGS", "").strip()
     if not raw:
         return "en,es,pt"
     return ",".join(code.strip().lower() for code in raw.split(",") if code.strip()) or "en,es,pt"
@@ -593,7 +593,7 @@ def _ytdlp_sub_langs() -> str:
 
 def _transcript_fast_timeout() -> float:
     """Return the keyed-run yt-dlp timeout, preserving the 12s default."""
-    raw = os.environ.get("LAST30DAYS_YT_TRANSCRIPT_FAST_TIMEOUT", "").strip()
+    raw = os.environ.get("spark-journal_YT_TRANSCRIPT_FAST_TIMEOUT", "").strip()
     try:
         timeout = float(raw) if raw else float(_TRANSCRIPT_FAST_TIMEOUT)
     except ValueError:

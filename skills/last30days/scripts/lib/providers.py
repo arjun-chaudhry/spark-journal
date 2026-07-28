@@ -1,4 +1,4 @@
-"""Static provider catalog and runtime client implementations."""
+﻿"""Static provider catalog and runtime client implementations."""
 
 from __future__ import annotations
 
@@ -207,8 +207,8 @@ def _resolve_model_pins(config: dict[str, Any], depth: str, provider_name: str) 
     if depth == "deep" and provider_name == "gemini":
         default_rerank = GEMINI_PRO
 
-    planner_model = config.get("LAST30DAYS_PLANNER_MODEL") or default_planner
-    rerank_model = config.get("LAST30DAYS_RERANK_MODEL") or default_rerank
+    planner_model = config.get("spark-journal_PLANNER_MODEL") or default_planner
+    rerank_model = config.get("spark-journal_RERANK_MODEL") or default_rerank
 
     if provider_name == "gemini":
         _require_gemini_31(planner_model, role="planner")
@@ -219,7 +219,7 @@ def _resolve_model_pins(config: dict[str, Any], depth: str, provider_name: str) 
 
 def mock_runtime(config: dict[str, Any], depth: str) -> schema.ProviderRuntime:
     """Resolve model pins for mock mode without requiring live credentials."""
-    provider_name = (config.get("LAST30DAYS_REASONING_PROVIDER") or "gemini").lower()
+    provider_name = (config.get("spark-journal_REASONING_PROVIDER") or "gemini").lower()
     if provider_name == "auto":
         provider_name = "gemini"
     if provider_name not in _MODEL_DEFAULTS:
@@ -237,7 +237,7 @@ def mock_runtime(config: dict[str, Any], depth: str) -> schema.ProviderRuntime:
 
 def resolve_runtime(config: dict[str, Any], depth: str) -> tuple[schema.ProviderRuntime, ReasoningClient | None]:
     """Resolve the reasoning provider and pinned models."""
-    provider_name = (config.get("LAST30DAYS_REASONING_PROVIDER") or "auto").lower()
+    provider_name = (config.get("spark-journal_REASONING_PROVIDER") or "auto").lower()
     google_key = config.get("GOOGLE_API_KEY") or config.get("GEMINI_API_KEY") or config.get("GOOGLE_GENAI_API_KEY")
     openai_token = config.get("OPENAI_API_KEY")
     xai_key = config.get("XAI_API_KEY")

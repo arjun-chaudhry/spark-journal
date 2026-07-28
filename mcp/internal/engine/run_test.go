@@ -1,4 +1,4 @@
-package engine
+﻿package engine
 
 import (
 	"context"
@@ -23,7 +23,7 @@ import (
 //	STUB_ECHO_ARG    - integer index; the stub prints "ARG<i>=<args[i]>"
 //
 // The stub ignores its first argument (the script path), matching how a
-// real python3 invocation treats `python3 last30days.py ...`.
+// real python3 invocation treats `python3 spark-journal.py ...`.
 func makeStubPython(t *testing.T) string {
 	t.Helper()
 	if runtime.GOOS == "windows" {
@@ -45,13 +45,13 @@ exit "${STUB_EXIT_CODE:-0}"
 	return path
 }
 
-// stageCache materializes a fake CacheDir with a no-op last30days.py so
+// stageCache materializes a fake CacheDir with a no-op spark-journal.py so
 // the existence check in Run passes. The stub python3 ignores the script
 // contents, so the file just has to exist.
 func stageCache(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(dir, "last30days.py"), []byte("# stub\n"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "spark-journal.py"), []byte("# stub\n"), 0o644); err != nil {
 		t.Fatalf("stage cache: %v", err)
 	}
 	return dir
@@ -240,7 +240,7 @@ func TestRunMissingPython(t *testing.T) {
 
 func TestRunMissingScript(t *testing.T) {
 	stub := makeStubPython(t)
-	// CacheDir exists but contains no last30days.py.
+	// CacheDir exists but contains no spark-journal.py.
 	cache := t.TempDir()
 
 	_, err := Run(context.Background(), RunOptions{
@@ -248,9 +248,9 @@ func TestRunMissingScript(t *testing.T) {
 		CacheDir:   cache,
 	})
 	if err == nil {
-		t.Fatal("expected error when last30days.py missing")
+		t.Fatal("expected error when spark-journal.py missing")
 	}
-	if !strings.Contains(err.Error(), "last30days.py") {
+	if !strings.Contains(err.Error(), "spark-journal.py") {
 		t.Fatalf("error %q does not name missing script", err)
 	}
 }

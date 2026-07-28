@@ -1,4 +1,4 @@
-"""Permission preflight contract and human renderer."""
+﻿"""Permission preflight contract and human renderer."""
 
 from __future__ import annotations
 
@@ -7,8 +7,8 @@ from typing import Any
 
 ENDPOINT_OVERRIDE_KEYS = {
     "BSKY_SEARCH_HOST",
-    "LAST30DAYS_SEARXNG_URL",
-    "LAST30DAYS_YOUTUBE_SSH_HOST",
+    "spark-journal_SEARXNG_URL",
+    "spark-journal_YOUTUBE_SSH_HOST",
     "OPENAI_BASE_URL",
     "XAI_BASE_URL",
     "XIAOHONGSHU_API_BASE",
@@ -113,7 +113,7 @@ def build(
 
     action_items: list[str] = []
     if ignored_project_config:
-        action_items.append("Project config was ignored; set LAST30DAYS_TRUST_PROJECT_CONFIG=1 to trust it.")
+        action_items.append("Project config was ignored; set spark-journal_TRUST_PROJECT_CONFIG=1 to trust it.")
 
     return {
         "status": "action_needed" if action_items else "ready",
@@ -153,7 +153,7 @@ def _format_names(names: list[str]) -> str:
 
 def render_text(preflight: dict[str, Any]) -> str:
     """Render the permission preflight as concise user-facing text."""
-    lines: list[str] = ["last30days preflight"]
+    lines: list[str] = ["spark-journal preflight"]
     status = preflight.get("status")
     if status == "ready":
         lines.append("Status: Ready to research with safe defaults.")

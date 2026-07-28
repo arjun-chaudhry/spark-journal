@@ -1,4 +1,4 @@
-"""Perplexity Sonar, Search API, and Deep Research.
+﻿"""Perplexity Sonar, Search API, and Deep Research.
 
 Direct Perplexity keys are preferred so the source can use first-party Search
 API results and async Deep Research. OpenRouter remains a Sonar compatibility
@@ -107,9 +107,9 @@ def _csv_values(raw: str, limit: int | None = None) -> list[str]:
 def _direct_model(config: dict, deep: bool) -> str:
     if deep:
         return PERPLEXITY_MODEL_DEEP_RESEARCH
-    model = _config_text(config, "LAST30DAYS_PERPLEXITY_MODEL") or PERPLEXITY_MODEL_SONAR_PRO
+    model = _config_text(config, "spark-journal_PERPLEXITY_MODEL") or PERPLEXITY_MODEL_SONAR_PRO
     if model not in DIRECT_MODELS:
-        _log(f"Unsupported LAST30DAYS_PERPLEXITY_MODEL={model!r}; using sonar-pro")
+        _log(f"Unsupported spark-journal_PERPLEXITY_MODEL={model!r}; using sonar-pro")
         return PERPLEXITY_MODEL_SONAR_PRO
     if model == PERPLEXITY_MODEL_DEEP_RESEARCH:
         return PERPLEXITY_MODEL_SONAR_PRO
@@ -119,9 +119,9 @@ def _direct_model(config: dict, deep: bool) -> str:
 def _mode(config: dict, provider: str, deep: bool) -> str:
     if deep:
         return PERPLEXITY_MODE_SONAR
-    mode = (_config_text(config, "LAST30DAYS_PERPLEXITY_MODE") or PERPLEXITY_MODE_SONAR).lower()
+    mode = (_config_text(config, "spark-journal_PERPLEXITY_MODE") or PERPLEXITY_MODE_SONAR).lower()
     if mode not in DIRECT_MODES:
-        _log(f"Unsupported LAST30DAYS_PERPLEXITY_MODE={mode!r}; using sonar")
+        _log(f"Unsupported spark-journal_PERPLEXITY_MODE={mode!r}; using sonar")
         return PERPLEXITY_MODE_SONAR
     if provider != "perplexity" and mode != PERPLEXITY_MODE_SONAR:
         _log("Search API modes require PERPLEXITY_API_KEY; using OpenRouter Sonar fallback")
@@ -157,7 +157,7 @@ def _usage(data: dict) -> dict:
 def _idempotency_key(json_data: dict) -> str:
     payload = json.dumps(json_data, sort_keys=True, separators=(",", ":"))
     digest = hashlib.sha256(payload.encode("utf-8")).hexdigest()[:32]
-    return f"last30days:{digest}"
+    return f"spark-journal:{digest}"
 
 
 def _async_metadata(
@@ -234,19 +234,19 @@ def _build_sonar_payload(prompt: str, model: str, date_range: tuple[str, str], c
 
     from_date, to_date = date_range
     web_options: dict[str, object] = {}
-    search_mode = _config_text(config, "LAST30DAYS_PERPLEXITY_SEARCH_MODE").lower()
+    search_mode = _config_text(config, "spark-journal_PERPLEXITY_SEARCH_MODE").lower()
     if search_mode in SONAR_SEARCH_MODES:
         web_options["search_mode"] = search_mode
 
-    domains = _csv_values(_config_text(config, "LAST30DAYS_PERPLEXITY_DOMAIN_FILTER"), limit=20)
+    domains = _csv_values(_config_text(config, "spark-journal_PERPLEXITY_DOMAIN_FILTER"), limit=20)
     if domains:
         web_options["search_domain_filter"] = domains
 
-    languages = _csv_values(_config_text(config, "LAST30DAYS_PERPLEXITY_LANGUAGE_FILTER"), limit=20)
+    languages = _csv_values(_config_text(config, "spark-journal_PERPLEXITY_LANGUAGE_FILTER"), limit=20)
     if languages:
         web_options["search_language_filter"] = languages
 
-    recency = _config_text(config, "LAST30DAYS_PERPLEXITY_RECENCY_FILTER").lower()
+    recency = _config_text(config, "spark-journal_PERPLEXITY_RECENCY_FILTER").lower()
     if recency in SEARCH_RECENCY_FILTERS:
         web_options["search_recency_filter"] = recency
 
@@ -260,7 +260,7 @@ def _build_sonar_payload(prompt: str, model: str, date_range: tuple[str, str], c
     if web_options:
         payload["web_search_options"] = web_options
 
-    effort = _config_text(config, "LAST30DAYS_PERPLEXITY_REASONING_EFFORT").lower()
+    effort = _config_text(config, "spark-journal_PERPLEXITY_REASONING_EFFORT").lower()
     if effort in REASONING_EFFORTS:
         payload["reasoning_effort"] = effort
 
@@ -271,22 +271,22 @@ def _build_search_payload(query: str, date_range: tuple[str, str], config: dict)
     from_date, to_date = date_range
     payload: dict[str, object] = {
         "query": query,
-        "max_results": _positive_int(config.get("LAST30DAYS_PERPLEXITY_MAX_RESULTS"), 10, 1, 20),
+        "max_results": _positive_int(config.get("spark-journal_PERPLEXITY_MAX_RESULTS"), 10, 1, 20),
     }
 
-    context_size = _config_text(config, "LAST30DAYS_PERPLEXITY_SEARCH_CONTEXT_SIZE").lower()
+    context_size = _config_text(config, "spark-journal_PERPLEXITY_SEARCH_CONTEXT_SIZE").lower()
     if context_size in SEARCH_CONTEXT_SIZES:
         payload["search_context_size"] = context_size
 
-    country = _config_text(config, "LAST30DAYS_PERPLEXITY_COUNTRY").upper()
+    country = _config_text(config, "spark-journal_PERPLEXITY_COUNTRY").upper()
     if len(country) == 2:
         payload["country"] = country
 
-    domains = _csv_values(_config_text(config, "LAST30DAYS_PERPLEXITY_DOMAIN_FILTER"), limit=20)
+    domains = _csv_values(_config_text(config, "spark-journal_PERPLEXITY_DOMAIN_FILTER"), limit=20)
     if domains:
         payload["search_domain_filter"] = domains
 
-    languages = _csv_values(_config_text(config, "LAST30DAYS_PERPLEXITY_LANGUAGE_FILTER"), limit=20)
+    languages = _csv_values(_config_text(config, "spark-journal_PERPLEXITY_LANGUAGE_FILTER"), limit=20)
     if languages:
         payload["search_language_filter"] = languages
 
@@ -298,9 +298,9 @@ def _build_search_payload(query: str, date_range: tuple[str, str], config: dict)
         payload["search_before_date_filter"] = before
 
     # Perplexity Search API rejects search_recency_filter when explicit
-    # published-date filters are present. last30days already passes an exact
+    # published-date filters are present. spark-journal already passes an exact
     # date range, so prefer that and keep recency only for undated callers.
-    recency = _config_text(config, "LAST30DAYS_PERPLEXITY_RECENCY_FILTER").lower()
+    recency = _config_text(config, "spark-journal_PERPLEXITY_RECENCY_FILTER").lower()
     if recency in SEARCH_RECENCY_FILTERS and not (after or before):
         payload["search_recency_filter"] = recency
 
@@ -363,7 +363,7 @@ def _extract_citations(data: dict, choice: dict) -> list[dict]:
 
 def _poll_async_sonar(json_data: dict, headers: dict, config: dict) -> tuple[dict, dict]:
     timeout_seconds = _positive_int(
-        config.get("LAST30DAYS_PERPLEXITY_DEEP_TIMEOUT_SECONDS"),
+        config.get("spark-journal_PERPLEXITY_DEEP_TIMEOUT_SECONDS"),
         PERPLEXITY_DEFAULT_DEEP_TIMEOUT_SECONDS,
         1,
         None,

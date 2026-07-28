@@ -1,4 +1,4 @@
-module github.com/mvanhorn/last30days-skill/mcp
+﻿module github.com/arjun-chaudhry/spark-journal-skill/mcp
 
 go 1.25.5
 

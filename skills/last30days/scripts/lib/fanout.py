@@ -1,4 +1,4 @@
-"""Parallel multi-entity fan-out for the --competitors flag.
+﻿"""Parallel multi-entity fan-out for the --competitors flag.
 
 The orchestrator accepts a `main_runner()` for the topic and a
 `competitor_runner(entity)` for each peer. It parallelizes their execution
@@ -7,7 +7,7 @@ failures are logged and dropped; the run survives as long as the main topic
 plus at least one competitor succeed.
 
 This module owns no business logic about pipeline arguments — the caller
-(scripts/last30days.py main) builds the closures with the appropriate
+(scripts/spark-journal.py main) builds the closures with the appropriate
 config, depth, and overrides for each entity.
 """
 

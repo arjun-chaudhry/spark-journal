@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Browser cookie extraction for Twitter authentication.
  * Delegates to @steipete/sweet-cookie for Safari/Chrome/Firefox reads.
  */
@@ -141,7 +141,7 @@ export async function resolveCredentials(options) {
     const warnings = [];
     const cookies = buildEmpty();
     const disableBrowserCookies = envFlagEnabled('BIRD_DISABLE_BROWSER_COOKIES') ||
-        envFlagEnabled('LAST30DAYS_DISABLE_BROWSER_COOKIES');
+        envFlagEnabled('spark-journal_DISABLE_BROWSER_COOKIES');
     const cookieTimeoutMs = typeof options.cookieTimeoutMs === 'number' &&
         Number.isFinite(options.cookieTimeoutMs) &&
         options.cookieTimeoutMs > 0

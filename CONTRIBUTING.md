@@ -1,6 +1,6 @@
-# Contributing
+﻿# Contributing
 
-Thanks for helping with last30days. Most PRs here are opened by coding agents following [`AGENTS.md`](AGENTS.md); this file is the short path for humans and agents alike.
+Thanks for helping with spark-journal. Most PRs here are opened by coding agents following [`AGENTS.md`](AGENTS.md); this file is the short path for humans and agents alike.
 
 ## Setup
 

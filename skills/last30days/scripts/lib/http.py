@@ -1,4 +1,4 @@
-"""HTTP utilities for last30days skill (stdlib only)."""
+﻿"""HTTP utilities for spark-journal skill (stdlib only)."""
 
 import json
 import os
@@ -34,18 +34,18 @@ RETRY_DELAY = 2.0
 # delays (1s, 2s, 4s) so callers that pass a small `retries` value still get a
 # meaningful chance to recover from a transient resolution failure.
 MIN_DNS_RETRIES = 3
-USER_AGENT = "last30days-skill/3.0 (Assistant Skill)"
+USER_AGENT = "spark-journal-skill/3.0 (Assistant Skill)"
 
 _failure_sink: ContextVar[Optional[list["HTTPError"]]] = ContextVar(
-    "last30days_http_failure_sink",
+    "spark-journal_http_failure_sink",
     default=None,
 )
 _expected_miss_statuses: ContextVar[frozenset[int]] = ContextVar(
-    "last30days_http_expected_miss_statuses",
+    "spark-journal_http_expected_miss_statuses",
     default=frozenset(),
 )
 
-_FIXTURE_FORMAT = "last30days-http-fixture/v1"
+_FIXTURE_FORMAT = "spark-journal-http-fixture/v1"
 _FIXTURE_SECRET_KEYS = frozenset(
     {"api_key", "apikey", "authorization", "cookie", "key", "secret", "token"}
 )
@@ -53,7 +53,7 @@ _fixture_lock = threading.Lock()
 _fixture_state: Optional[dict[str, Any]] = None
 _NO_FIXTURE = object()
 _fixture_module_capture: ContextVar[bool] = ContextVar(
-    "last30days_fixture_module_capture",
+    "spark-journal_fixture_module_capture",
     default=False,
 )
 

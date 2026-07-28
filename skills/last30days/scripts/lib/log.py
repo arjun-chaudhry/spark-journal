@@ -1,16 +1,16 @@
-"""Shared logging utilities for last30days skill."""
+﻿"""Shared logging utilities for spark-journal skill."""
 
 import os
 import sys
 
 
 def is_debug() -> bool:
-    val = os.environ.get("LAST30DAYS_DEBUG", "")
+    val = os.environ.get("spark-journal_DEBUG", "")
     return val.lower() in ("1", "true", "yes", "on")
 
 
 def debug(msg: str) -> None:
-    """Log debug message to stderr (only when LAST30DAYS_DEBUG is set)."""
+    """Log debug message to stderr (only when spark-journal_DEBUG is set)."""
     if is_debug():
         sys.stderr.write(f"[DEBUG] {msg}\n")
         sys.stderr.flush()

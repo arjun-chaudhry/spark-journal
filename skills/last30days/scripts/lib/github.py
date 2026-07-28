@@ -1,4 +1,4 @@
-"""GitHub Issues/PRs search via the public GitHub Search API.
+﻿"""GitHub Issues/PRs search via the public GitHub Search API.
 
 Uses api.github.com/search/issues for issue/PR discovery and
 per-item comment enrichment. Auth via GITHUB_TOKEN env var or
@@ -39,7 +39,7 @@ ENRICH_LIMITS = {
 # conservatively when running without a token to stay within the anon tier.
 UNAUTH_COUNT_CAP = 10
 
-USER_AGENT = "last30days/3.0 (research tool)"
+USER_AGENT = "spark-journal/3.0 (research tool)"
 
 
 def _log(msg: str):

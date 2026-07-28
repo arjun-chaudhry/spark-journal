@@ -1,4 +1,4 @@
-package tools
+﻿package tools
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 
-	"github.com/mvanhorn/last30days-skill/mcp/internal/engine"
+	"github.com/arjun-chaudhry/spark-journal-skill/mcp/internal/engine"
 )
 
 func newCallToolRequest(args map[string]any) mcplib.CallToolRequest {
@@ -106,22 +106,22 @@ func TestResearchRunArgsIncludesNoBrowserCookies(t *testing.T) {
 }
 
 func TestResearchRunArgsSaveUsesSupportedSaveDir(t *testing.T) {
-	t.Setenv("LAST30DAYS_MEMORY_DIR", "")
+	t.Setenv("spark-journal_MEMORY_DIR", "")
 	args := researchRunArgs("OpenAI", "html", true)
 	got := strings.Join(args, "\x00")
 	if strings.Contains(got, "--save\x00") || strings.HasSuffix(got, "--save") {
 		t.Fatalf("args still include unsupported --save: %#v", args)
 	}
-	want := []string{"OpenAI", "--emit=html", "--no-browser-cookies", "--save-dir", "~/Documents/Last30Days"}
+	want := []string{"OpenAI", "--emit=html", "--no-browser-cookies", "--save-dir", "~/Documents/spark-journal"}
 	if got != strings.Join(want, "\x00") {
 		t.Fatalf("args = %#v, want %#v", args, want)
 	}
 }
 
 func TestResearchRunArgsSaveUsesMemoryDirEnvOverride(t *testing.T) {
-	t.Setenv("LAST30DAYS_MEMORY_DIR", "/tmp/last30days-reports")
+	t.Setenv("spark-journal_MEMORY_DIR", "/tmp/spark-journal-reports")
 	args := researchRunArgs("OpenAI", "html", true)
-	want := []string{"OpenAI", "--emit=html", "--no-browser-cookies", "--save-dir", "/tmp/last30days-reports"}
+	want := []string{"OpenAI", "--emit=html", "--no-browser-cookies", "--save-dir", "/tmp/spark-journal-reports"}
 	if strings.Join(args, "\x00") != strings.Join(want, "\x00") {
 		t.Fatalf("args = %#v, want %#v", args, want)
 	}

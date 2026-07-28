@@ -1,4 +1,4 @@
-"""Backend-chain descriptors with predicted selection (doctor, R4).
+﻿"""Backend-chain descriptors with predicted selection (doctor, R4).
 
 Chained sources declare their routing here ONCE — imported from the
 definitions ``lib/env.py`` already owns (chain order, pin var names) — and
@@ -183,7 +183,7 @@ def _key_probe(name: str, key_var: str, requires: str, note: str = "") -> Callab
                 detail=f"{key_var} present",
                 requires=requires,
             )
-        prescription = note or f"set {key_var} in ~/.config/last30days/.env"
+        prescription = note or f"set {key_var} in ~/.config/spark-journal/.env"
         return BackendFinding(
             name=name,
             status=health.MISSING,

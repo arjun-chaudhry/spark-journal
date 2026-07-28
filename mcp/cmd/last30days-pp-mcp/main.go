@@ -1,4 +1,4 @@
-// Package main is the entry point for the last30days MCP server bundled
+﻿// Package main is the entry point for the spark-journal MCP server bundled
 // as a .mcpb for Claude Desktop. The server registers a single research
 // tool (see internal/tools) and serves it over stdio. See mcp/README.md
 // for build and packaging instructions.
@@ -10,7 +10,7 @@ import (
 
 	"github.com/mark3labs/mcp-go/server"
 
-	"github.com/mvanhorn/last30days-skill/mcp/internal/tools"
+	"github.com/arjun-chaudhry/spark-journal-skill/mcp/internal/tools"
 )
 
 // Version is stamped at build time via -ldflags "-X main.Version=<tag>".
@@ -19,7 +19,7 @@ import (
 var Version = "dev"
 
 const (
-	serverName    = "last30days"
+	serverName    = "spark-journal"
 	serverVersion = "1"
 )
 
@@ -33,7 +33,7 @@ func main() {
 	tools.Register(s, tools.Config{Version: Version})
 
 	if err := server.ServeStdio(s); err != nil {
-		fmt.Fprintf(os.Stderr, "last30days-pp-mcp: %v\n", err)
+		fmt.Fprintf(os.Stderr, "spark-journal-pp-mcp: %v\n", err)
 		os.Exit(1)
 	}
 }

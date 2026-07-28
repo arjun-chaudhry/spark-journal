@@ -1,9 +1,9 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 # build-skill.sh - package this repo as a claude.ai-upload-ready .skill file
-# Usage: bash skills/last30days/scripts/build-skill.sh  (run from repo root)
+# Usage: bash skills/spark-journal/scripts/build-skill.sh  (run from repo root)
 #
-# Produces dist/last30days.skill, a zip with a single top-level `last30days/`
-# directory containing SKILL.md and the scripts/ runtime from skills/last30days.
+# Produces dist/spark-journal.skill, a zip with a single top-level `spark-journal/`
+# directory containing SKILL.md and the scripts/ runtime from skills/spark-journal.
 # See
 # docs/plans/2026-04-14-001-fix-skill-upload-200-file-limit-plan.md.
 set -euo pipefail
@@ -17,8 +17,8 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
 fi
 
 mkdir -p dist
-OUT="dist/last30days.skill"
-git archive --format=zip --prefix=last30days/ --output="$OUT" HEAD:skills/last30days
+OUT="dist/spark-journal.skill"
+git archive --format=zip --prefix=spark-journal/ --output="$OUT" HEAD:skills/spark-journal
 
 COUNT=$(unzip -l "$OUT" | tail -1 | awk '{print $2}')
 SIZE=$(du -h "$OUT" | cut -f1)

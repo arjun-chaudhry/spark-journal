@@ -1,4 +1,4 @@
-package engine
+﻿package engine
 
 import (
 	"errors"
@@ -17,14 +17,14 @@ const SentinelFilename = ".version"
 
 // cacheSubdir namespaces our cache under the OS user cache directory so
 // multiple printing-press-style bundles can coexist.
-const cacheSubdir = "last30days-pp-mcp"
+const cacheSubdir = "spark-journal-pp-mcp"
 
 // CacheEnvOverride lets users redirect the cache directory when the default
 // OS cache location is read-only (locked-down corp images, ephemeral CI
 // containers). Pointed at by extract errors via the documented escape hatch.
-const CacheEnvOverride = "LAST30DAYS_CACHE_DIR"
+const CacheEnvOverride = "spark-journal_CACHE_DIR"
 
-// Ensure extracts src into baseDir/last30days-pp-mcp/<version> and returns
+// Ensure extracts src into baseDir/spark-journal-pp-mcp/<version> and returns
 // the cache path. If the sentinel file already records the same version the
 // directory is reused without rewriting. version must be non-empty so the
 // cache layout always namespaces by version.
@@ -55,7 +55,7 @@ func Ensure(src fs.FS, baseDir, version string) (string, error) {
 }
 
 // EnsureUserCache wraps Ensure with the OS user cache dir (or the
-// LAST30DAYS_CACHE_DIR override) as base. Production callers use this; tests
+// spark-journal_CACHE_DIR override) as base. Production callers use this; tests
 // use Ensure with an explicit temp dir.
 func EnsureUserCache(src fs.FS, version string) (string, error) {
 	if override := os.Getenv(CacheEnvOverride); override != "" {

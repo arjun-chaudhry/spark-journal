@@ -1,7 +1,7 @@
-"""Engine-side query-quality pre-flight.
+﻿"""Engine-side query-quality pre-flight.
 
 Detects Class 1 (demographic shopping) keyword-trap queries and returns a
-structured REFUSE message. The caller (scripts/last30days.py main()) writes
+structured REFUSE message. The caller (scripts/spark-journal.py main()) writes
 the message to stderr and exits code 2. No pipeline work runs on a doomed
 query; the model sees the REFUSE on stderr and asks the user for the
 hobbies/relationship/budget context it needs.
@@ -101,7 +101,7 @@ def check_class_1_trap(topic: str) -> str | None:
 
 def _refuse_message(topic: str) -> str:
     return (
-        f'[last30days] REFUSE: topic "{topic}" matches Class 1 keyword-trap '
+        f'[spark-journal] REFUSE: topic "{topic}" matches Class 1 keyword-trap '
         "pattern (demographic shopping).\n"
         "\n"
         "The literal phrase is not the vocabulary of actual gift discussions "
@@ -115,5 +115,5 @@ def _refuse_message(topic: str) -> str:
         "  - budget range\n"
         "\n"
         "Then re-run with the enriched query. If the user insists 'just run it',\n"
-        "re-invoke with LAST30DAYS_SKIP_PREFLIGHT=1 to bypass this gate.\n"
+        "re-invoke with spark-journal_SKIP_PREFLIGHT=1 to bypass this gate.\n"
     )

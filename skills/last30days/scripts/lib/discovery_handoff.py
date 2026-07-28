@@ -1,4 +1,4 @@
-"""File contracts for the three-command host-judged discovery protocol.
+﻿"""File contracts for the three-command host-judged discovery protocol.
 
 Leg 1 (``--discover --nominate-only``) writes the nominations bundle: the
 FULL judge pool, each nomination with its complete seed item set, serialized
@@ -30,7 +30,7 @@ from . import env, log, pipeline, rerank, schema
 
 
 # How long a nominations bundle stays valid. Deliberately a module constant
-# and NOT the LAST30DAYS_REPORT_CACHE_TTL_SECONDS env knob: a user who
+# and NOT the spark-journal_REPORT_CACHE_TTL_SECONDS env knob: a user who
 # lowered the report-cache TTL for drill freshness must not shrink the
 # window a host has to author judgments.
 DISCOVERY_HANDOFF_TTL_SECONDS = 3600.0
@@ -51,7 +51,7 @@ _RESUME_REMEDY = (
 )
 
 # Defensive caps on host-supplied text, ported from the retired engine-judge
-# pass: names become search queries and the /last30days handoff, angles
+# pass: names become search queries and the /spark-journal handoff, angles
 # render verbatim on trend cards, so a runaway (or adversarial) value never
 # yields an unbounded string.
 _NAME_MAX_CHARS = 96
@@ -188,7 +188,7 @@ def handoff_state_dir(
     config_dir: Path | None,
 ) -> Path | None:
     """Resolve the handoff state directory: ``save_dir`` when provided, else
-    the config dir (mirrors the report-cache convention in last30days.py).
+    the config dir (mirrors the report-cache convention in spark-journal.py).
     Both are accepted as arguments so this module never imports the CLI
     layer above it. Returns None when neither location is available."""
     if save_dir:
@@ -265,7 +265,7 @@ def write_nominations_bundle(
     if state_dir is None:
         raise HandoffContractError(
             "No handoff location available to write the nominations bundle: "
-            "pass --save-dir or configure ~/.config/last30days/."
+            "pass --save-dir or configure ~/.config/spark-journal/."
         )
     bundle_id = secrets.token_hex(8)
     generated_at = schema._utc_now()

@@ -1,4 +1,4 @@
-"""Typed source health: classify a source/tool outcome honestly.
+﻿"""Typed source health: classify a source/tool outcome honestly.
 
 The pipeline historically collapsed every failure into "returned nothing" or a
 flat ``errors_by_source`` entry, which hides the difference between a tool that
@@ -129,7 +129,7 @@ PROBE_TIMEOUT = 5.0
 
 _PP_CLI_SUFFIX = "-pp-cli"
 # Matches setup_wizard.PRINTING_PRESS_NPM (pinned catalog installer).
-_PRINTING_PRESS_NPM = "@mvanhorn/printing-press-library@0.1.16"
+_PRINTING_PRESS_NPM = "@arjun-chaudhry/printing-press-library@0.1.16"
 
 # Dependencies the doctor probes by default.
 KNOWN_DEPENDENCIES: Tuple[str, ...] = ("yt-dlp", "digg-pp-cli", "node", "ffmpeg")

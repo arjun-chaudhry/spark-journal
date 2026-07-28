@@ -1,4 +1,4 @@
-"""Scan saved last30days research artifacts into a deterministic library."""
+﻿"""Scan saved spark-journal research artifacts into a deterministic library."""
 
 from __future__ import annotations
 
@@ -11,11 +11,11 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 
 
-DEFAULT_MEMORY_DIR = Path.home() / "Documents" / "Last30Days"
-DEFAULT_BRIEFS_DIR = Path.home() / ".local" / "share" / "last30days" / "briefs"
-LIBRARY_ID_FILENAME = ".last30days-library-id"
+DEFAULT_MEMORY_DIR = Path.home() / "Documents" / "spark-journal"
+DEFAULT_BRIEFS_DIR = Path.home() / ".local" / "share" / "spark-journal" / "briefs"
+LIBRARY_ID_FILENAME = ".spark-journal-library-id"
 
-_REPORT_TITLE = re.compile(r"^#\s+last30days(?:\s+v[^:]+)?:\s*(.+?)\s*$", re.MULTILINE | re.IGNORECASE)
+_REPORT_TITLE = re.compile(r"^#\s+spark-journal(?:\s+v[^:]+)?:\s*(.+?)\s*$", re.MULTILINE | re.IGNORECASE)
 _FIRST_TITLE = re.compile(r"^#\s+(.+?)\s*$", re.MULTILINE)
 _DATE_RANGE = re.compile(
     r"^-\s*Date range:\s*\d{4}-\d{2}-\d{2}\s+to\s+(\d{4}-\d{2}-\d{2})\s*$",
@@ -30,8 +30,8 @@ _GENERATED_BRIEF_NAME = re.compile(
     r"[a-z0-9]+(?:-[a-z0-9]+)*-[0-9a-f]{8}-\d{4}-\d{2}-\d{2}\.html"
 )
 _PRIVATE_CORPUS_BLOCK = re.compile(
-    r"<!-- LAST30DAYS_PRIVATE_CORPUS_START -->.*?"
-    r"<!-- LAST30DAYS_PRIVATE_CORPUS_END -->\s*",
+    r"<!-- spark-journal_PRIVATE_CORPUS_START -->.*?"
+    r"<!-- spark-journal_PRIVATE_CORPUS_END -->\s*",
     re.DOTALL,
 )
 
@@ -52,7 +52,7 @@ class LibraryEntry:
 
     @property
     def entry_id(self) -> str:
-        return f"urn:last30days:{self.slug}:{self.identity_hash}:{self.published_date.isoformat()}"
+        return f"urn:spark-journal:{self.slug}:{self.identity_hash}:{self.published_date.isoformat()}"
 
     @property
     def output_name(self) -> str:
@@ -69,7 +69,7 @@ class LibraryEntry:
 
 def slugify(value: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
-    return slug or "last30days"
+    return slug or "spark-journal"
 
 
 def get_or_create_library_id(memory_dir: Path | str) -> str:

@@ -1,14 +1,14 @@
-#!/bin/bash
-# Store last30days API keys in the macOS Keychain.
+﻿#!/bin/bash
+# Store spark-journal API keys in the macOS Keychain.
 #
-# Keys are stored as generic passwords with service name `last30days-<KEY>`
+# Keys are stored as generic passwords with service name `spark-journal-<KEY>`
 # for the current user. The lib/env.py loader picks them up automatically as
 # the lowest-priority credential source on Darwin.
 #
 # Usage:
 #   ./setup-keychain.sh              # interactive: prompts for each key
 #   ./setup-keychain.sh KEY [KEY..]  # prompt only for the listed keys
-#   ./setup-keychain.sh --list       # list which last30days-* items exist
+#   ./setup-keychain.sh --list       # list which spark-journal-* items exist
 #   ./setup-keychain.sh --delete KEY # remove a stored key
 #
 # Existing values are shown as "(set)" and skipped unless --replace is passed.
@@ -16,7 +16,7 @@
 
 set -euo pipefail
 
-PREFIX="last30days-"
+PREFIX="spark-journal-"
 # Mirrors lib/env.py::KEYCHAIN_KEYS — kept in sync via
 # tests/test_env_keychain.py::test_keychain_keys_match_setup_script.
 ALL_KEYS=(
@@ -69,7 +69,7 @@ done
 
 case "$ACTION" in
   list)
-    echo "Stored last30days-* keychain items:"
+    echo "Stored spark-journal-* keychain items:"
     for key in "${ALL_KEYS[@]}"; do
       if security find-generic-password -a "$USER" -s "${PREFIX}${key}" -w >/dev/null 2>&1; then
         echo "  $key"

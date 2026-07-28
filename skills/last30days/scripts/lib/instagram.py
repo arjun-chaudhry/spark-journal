@@ -1,4 +1,4 @@
-"""Instagram Reels search via ScrapeCreators API for /last30days.
+﻿"""Instagram Reels search via ScrapeCreators API for /spark-journal.
 
 Uses ScrapeCreators REST API to search Instagram Reels by keyword, extract
 engagement metrics (views, likes, comments), and fetch video transcripts.
@@ -31,7 +31,7 @@ CAPTION_MAX_WORDS = 500
 
 # Default transcript fetch timeout (seconds). SC's
 # /v2/instagram/media/transcript regularly takes >15s on real workloads,
-# so the default is generous; override via LAST30DAYS_TRANSCRIPT_TIMEOUT.
+# so the default is generous; override via spark-journal_TRANSCRIPT_TIMEOUT.
 DEFAULT_TRANSCRIPT_TIMEOUT = 30
 
 
@@ -43,22 +43,22 @@ def _resolve_transcript_timeout(
 
     Priority (highest wins):
       1. Explicit ``timeout`` kwarg
-      2. ``LAST30DAYS_TRANSCRIPT_TIMEOUT`` in os.environ
-      3. ``LAST30DAYS_TRANSCRIPT_TIMEOUT`` in caller-supplied config dict
+      2. ``spark-journal_TRANSCRIPT_TIMEOUT`` in os.environ
+      3. ``spark-journal_TRANSCRIPT_TIMEOUT`` in caller-supplied config dict
       4. ``DEFAULT_TRANSCRIPT_TIMEOUT`` (30s)
 
     Mirrors the ``os.environ.get(X) or config.get(X)`` pattern used for
-    LAST30DAYS_STORE in last30days.py so the env var works whether it's
-    shell-exported or set in ~/.config/last30days/.env.
+    spark-journal_STORE in spark-journal.py so the env var works whether it's
+    shell-exported or set in ~/.config/spark-journal/.env.
     """
     if timeout is not None:
         try:
             return float(timeout)
         except (TypeError, ValueError):
             pass
-    raw = os.environ.get("LAST30DAYS_TRANSCRIPT_TIMEOUT")
+    raw = os.environ.get("spark-journal_TRANSCRIPT_TIMEOUT")
     if not raw and config:
-        raw = config.get("LAST30DAYS_TRANSCRIPT_TIMEOUT")
+        raw = config.get("spark-journal_TRANSCRIPT_TIMEOUT")
     if raw:
         try:
             return float(raw)
@@ -377,10 +377,10 @@ def fetch_captions(
         token: ScrapeCreators API key
         depth: Depth level for caption limit
         timeout: Optional per-request transcript timeout in seconds. When
-            None, resolves from LAST30DAYS_TRANSCRIPT_TIMEOUT (env or
+            None, resolves from spark-journal_TRANSCRIPT_TIMEOUT (env or
             config), defaulting to DEFAULT_TRANSCRIPT_TIMEOUT (30s).
         config: Optional config dict (from env.get_config()) used as a
-            fallback source for LAST30DAYS_TRANSCRIPT_TIMEOUT when the
+            fallback source for spark-journal_TRANSCRIPT_TIMEOUT when the
             value is not exported in os.environ.
 
     Returns:

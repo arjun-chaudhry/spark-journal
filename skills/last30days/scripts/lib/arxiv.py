@@ -1,4 +1,4 @@
-"""arXiv research-paper source for last30days.
+﻿"""arXiv research-paper source for spark-journal.
 
 Shells out to ``arxiv-pp-cli`` (open Atom API, no auth) to surface recent
 research papers relevant to a topic. arXiv carries no engagement signal, so

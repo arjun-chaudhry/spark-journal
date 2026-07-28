@@ -1,4 +1,4 @@
-"""Techmeme tech-news source for last30days.
+﻿"""Techmeme tech-news source for spark-journal.
 
 Shells out to ``techmeme-pp-cli`` (no auth). The CLI's ``search`` command hits
 Techmeme's live archive search endpoint (results back to ~2005) -- it never
@@ -190,7 +190,7 @@ def search_techmeme(
             _log(
                 "no records carry usable dates; date windowing inactive "
                 "(old techmeme-pp-cli binary or upstream markup change; upgrade "
-                "via `npx -y @mvanhorn/printing-press-library install techmeme "
+                "via `npx -y @arjun-chaudhry/printing-press-library install techmeme "
                 "--cli-only`)"
             )
         # Techmeme returns all matches; apply the depth cap after windowing.

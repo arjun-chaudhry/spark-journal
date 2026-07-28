@@ -1,4 +1,4 @@
-"""Xiaohongshu HTTP API search client for last30days.
+﻿"""Xiaohongshu HTTP API search client for spark-journal.
 
 Uses xpzouying/xiaohongshu-mcp REST endpoints:
 - GET/POST /api/v1/feeds/search

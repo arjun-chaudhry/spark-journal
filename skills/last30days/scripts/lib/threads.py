@@ -1,4 +1,4 @@
-"""Threads keyword search via ScrapeCreators API for /last30days.
+﻿"""Threads keyword search via ScrapeCreators API for /spark-journal.
 
 Uses ScrapeCreators REST API to search Threads by keyword, extracting
 engagement metrics (likes, replies) from short text posts.

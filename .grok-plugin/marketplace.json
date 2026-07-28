@@ -1,23 +1,23 @@
-{
-  "name": "last30days-skill",
+﻿{
+  "name": "spark-journal-skill",
   "owner": {
     "name": "Matt Van Horn",
-    "url": "https://github.com/mvanhorn"
+    "url": "https://github.com/arjun-chaudhry"
   },
-  "description": "Marketplace for the last30days research plugin",
+  "description": "Marketplace for the spark-journal research plugin",
   "plugins": [
     {
-      "name": "last30days",
+      "name": "spark-journal",
       "description": "Research any topic across Reddit, X, YouTube, TikTok, Instagram, Hacker News, Polymarket, GitHub, and 5+ more sources. AI agent scores by upvotes, likes, and real money - not editors.",
       "version": "3.18.3",
       "category": "productivity",
       "source": {
         "source": "url",
-        "url": "https://github.com/mvanhorn/last30days-skill.git"
+        "url": "https://github.com/arjun-chaudhry/spark-journal-skill.git"
       },
-      "homepage": "https://github.com/mvanhorn/last30days-skill",
+      "homepage": "https://github.com/arjun-chaudhry/spark-journal-skill",
       "keywords": [
-        "last30days",
+        "spark-journal",
         "last 30 days"
       ]
     }

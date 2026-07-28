@@ -1,4 +1,4 @@
-"""Environment and API key management for last30days skill."""
+﻿"""Environment and API key management for spark-journal skill."""
 
 from __future__ import annotations
 
@@ -25,9 +25,9 @@ def read_secret_env(name: str, default: str | None = None) -> str | None:
 
 
 # Allow override via environment variable for testing
-# Set LAST30DAYS_CONFIG_DIR="" for clean/no-config mode
-# Set LAST30DAYS_CONFIG_DIR="/path/to/dir" for custom config location
-_config_override = os.environ.get('LAST30DAYS_CONFIG_DIR')
+# Set spark-journal_CONFIG_DIR="" for clean/no-config mode
+# Set spark-journal_CONFIG_DIR="/path/to/dir" for custom config location
+_config_override = os.environ.get('spark-journal_CONFIG_DIR')
 if _config_override == "":
     # Empty string = no config file (clean mode)
     CONFIG_DIR = None
@@ -36,20 +36,20 @@ elif _config_override:
     CONFIG_DIR = Path(_config_override)
     CONFIG_FILE = CONFIG_DIR / ".env"
 else:
-    CONFIG_DIR = Path.home() / ".config" / "last30days"
+    CONFIG_DIR = Path.home() / ".config" / "spark-journal"
     CONFIG_FILE = CONFIG_DIR / ".env"
 
 # macOS Keychain integration: items stored with this service prefix are picked
 # up automatically on Darwin as the lowest-priority credential source.
-# Example: `security add-generic-password -a "$USER" -s last30days-XAI_API_KEY -w "xai-..."`.
-KEYCHAIN_SERVICE_PREFIX = "last30days-"
+# Example: `security add-generic-password -a "$USER" -s spark-journal-XAI_API_KEY -w "xai-..."`.
+KEYCHAIN_SERVICE_PREFIX = "spark-journal-"
 
 # Optional non-secret aliases for users who already store API keys under a
 # different Keychain naming convention. Configure as JSON in
-# LAST30DAYS_KEYCHAIN_ALIASES, for example:
+# spark-journal_KEYCHAIN_ALIASES, for example:
 # {"XAI_API_KEY":{"account":"keychain-user","service":"existing-xai-api-key"}}
 # A string value is shorthand for {"service": "..."} with the current user.
-KEYCHAIN_ALIASES_ENV = "LAST30DAYS_KEYCHAIN_ALIASES"
+KEYCHAIN_ALIASES_ENV = "spark-journal_KEYCHAIN_ALIASES"
 
 # Single source of truth for which credentials the Keychain loader looks up.
 # The setup-keychain.sh helper mirrors this list and is held in sync via
@@ -65,12 +65,12 @@ KEYCHAIN_KEYS = (
 
 # pass(1) integration: Linux/Unix analog of the Keychain source. Each key in
 # KEYCHAIN_KEYS is looked up at pass path f"{prefix}{KEY}", the direct analog of
-# Keychain's "last30days-<KEY>" service-name convention, so any user stores keys
+# Keychain's "spark-journal-<KEY>" service-name convention, so any user stores keys
 # under one namespace without editing code. The prefix is resolved at call time
-# (in get_config) from LAST30DAYS_PASS_PREFIX in the process env or a config
+# (in get_config) from spark-journal_PASS_PREFIX in the process env or a config
 # file, falling back to this default; included verbatim, so keep the trailing
 # separator. Honors PASSWORD_STORE_DIR.
-DEFAULT_PASS_PATH_PREFIX = "last30days/"
+DEFAULT_PASS_PATH_PREFIX = "spark-journal/"
 
 AuthSource = Literal["api_key", "none"]
 AuthStatus = Literal["ok", "missing"]
@@ -146,10 +146,10 @@ def is_timestamp_fresh(timestamp_value: Any, ttl_seconds: int) -> bool:
 def _project_config_trusted(policy: ConfigLoadPolicy, file_env: dict[str, Any]) -> bool:
     if policy.allow_project_config:
         return True
-    process_value = os.environ.get("LAST30DAYS_TRUST_PROJECT_CONFIG")
+    process_value = os.environ.get("spark-journal_TRUST_PROJECT_CONFIG")
     if process_value is not None:
         return _truthy(process_value)
-    return _truthy(file_env.get("LAST30DAYS_TRUST_PROJECT_CONFIG"))
+    return _truthy(file_env.get("spark-journal_TRUST_PROJECT_CONFIG"))
 
 
 def _check_file_permissions(path: Path) -> None:
@@ -163,12 +163,12 @@ def _check_file_permissions(path: Path) -> None:
         # Check if group or other can read (bits 0o044)
         if mode & 0o044:
             sys.stderr.write(
-                f"[last30days] WARNING: {path} is readable by other users. "
+                f"[spark-journal] WARNING: {path} is readable by other users. "
                 f"Run: chmod 600 {path}\n"
             )
             sys.stderr.flush()
     except OSError as exc:
-        sys.stderr.write(f"[last30days] WARNING: could not stat {path}: {exc}\n")
+        sys.stderr.write(f"[spark-journal] WARNING: could not stat {path}: {exc}\n")
         sys.stderr.flush()
 
 
@@ -214,7 +214,7 @@ def _parse_keychain_aliases(raw: str | None) -> dict[str, list[dict[str, str]]]:
       {"XAI_API_KEY": [{"service": "primary"}, {"service": "fallback"}]}
 
     Invalid entries are ignored so a typo never blocks canonical
-    `last30days-<KEY>` lookups; malformed JSON emits a warning.
+    `spark-journal-<KEY>` lookups; malformed JSON emits a warning.
     """
     if not raw:
         return {}
@@ -222,7 +222,7 @@ def _parse_keychain_aliases(raw: str | None) -> dict[str, list[dict[str, str]]]:
         parsed = json.loads(raw)
     except json.JSONDecodeError as exc:
         sys.stderr.write(
-            f"[last30days] WARNING: {KEYCHAIN_ALIASES_ENV} is not valid JSON; "
+            f"[spark-journal] WARNING: {KEYCHAIN_ALIASES_ENV} is not valid JSON; "
             f"ignoring Keychain aliases while keeping canonical lookups enabled: {exc}\n"
         )
         sys.stderr.flush()
@@ -259,7 +259,7 @@ def _load_keychain(keys: list[str], aliases: dict[str, list[dict[str, str]]] | N
     Each key is looked up as a generic password with service name
     ``f"{KEYCHAIN_SERVICE_PREFIX}{key}"`` for the current user. Missing items
     then fall back to optional alias metadata from
-    ``LAST30DAYS_KEYCHAIN_ALIASES``. Lookup failures are silent — Keychain is
+    ``spark-journal_KEYCHAIN_ALIASES``. Lookup failures are silent — Keychain is
     the lowest-priority source and is meant to be additive over `.env` files
     and process environment.
     """
@@ -325,9 +325,9 @@ def _load_pass(keys: list[str], prefix: str) -> dict[str, str]:
 
     The Linux/Unix analog of the macOS Keychain source. Each env-var name is
     looked up at pass path ``f"{prefix}{key}"`` — mirroring Keychain's
-    ``last30days-<key>`` service-name convention — so any user stores keys under
+    ``spark-journal-<key>`` service-name convention — so any user stores keys under
     that namespace without editing code (prefix overridable via
-    ``LAST30DAYS_PASS_PREFIX``). The secret is decrypted in a subprocess and
+    ``spark-journal_PASS_PREFIX``). The secret is decrypted in a subprocess and
     read from stdout's first line (pass keeps the secret there; any metadata
     follows) — never written to disk, never logged. Honors ``PASSWORD_STORE_DIR``.
     Missing entries and failures are silent: pass is a lowest-priority, additive
@@ -379,12 +379,12 @@ def get_openai_auth(file_env: dict[str, str]) -> OpenAIAuth:
 def _find_project_env() -> Path | None:
     """Find per-project .env by walking up from cwd.
 
-    Searches for .claude/last30days.env in each parent directory,
+    Searches for .claude/spark-journal.env in each parent directory,
     stopping at the git root, user's home directory, or filesystem root.
     """
     cwd = Path.cwd()
     for parent in [cwd, *cwd.parents]:
-        candidate = parent / '.claude' / 'last30days.env'
+        candidate = parent / '.claude' / 'spark-journal.env'
         if candidate.exists():
             return candidate
         if (parent / ".git").exists():
@@ -400,9 +400,9 @@ def get_config(policy: ConfigLoadPolicy | None = None) -> dict[str, Any]:
 
     Priority (highest wins):
       1. Environment variables (os.environ)
-      2. Trusted .claude/last30days.env (per-project config)
-      3. ~/.config/last30days/.env (global config)
-      4. macOS Keychain items prefixed ``last30days-`` (Darwin only)
+      2. Trusted .claude/spark-journal.env (per-project config)
+      3. ~/.config/spark-journal/.env (global config)
+      4. macOS Keychain items prefixed ``spark-journal-`` (Darwin only)
     """
     policy = policy or ConfigLoadPolicy()
     # Load from global config file
@@ -435,12 +435,12 @@ def get_config(policy: ConfigLoadPolicy | None = None) -> dict[str, Any]:
     # plaintext .env). Lowest priority: Keychain, the config files, and process
     # env all win over it. Two efficiency guards so a user who merely has `pass`
     # on PATH doesn't pay for it: resolve the prefix from the loaded config/env
-    # (not import time, so a .env-set LAST30DAYS_PASS_PREFIX is honored), and
+    # (not import time, so a .env-set spark-journal_PASS_PREFIX is honored), and
     # probe ONLY keys still unset after the higher-priority sources — an empty
     # list short-circuits with no gpg/pinentry calls at all.
     pass_prefix = (
-        os.environ.get("LAST30DAYS_PASS_PREFIX")
-        or merged_env.get("LAST30DAYS_PASS_PREFIX")
+        os.environ.get("spark-journal_PASS_PREFIX")
+        or merged_env.get("spark-journal_PASS_PREFIX")
         or DEFAULT_PASS_PATH_PREFIX
     )
     pass_missing = [k for k in KEYCHAIN_KEYS if k not in os.environ and not merged_env.get(k)]
@@ -459,46 +459,46 @@ def get_config(policy: ConfigLoadPolicy | None = None) -> dict[str, Any]:
     keys = [
         # Debug flag; also exported to os.environ below so log.py's lazy
         # os.environ.get() picks up .env values after get_config() runs.
-        ('LAST30DAYS_DEBUG', None),
+        ('spark-journal_DEBUG', None),
         ('XAI_API_KEY', None),
         ('GOOGLE_API_KEY', None),
         ('GEMINI_API_KEY', None),
         ('GOOGLE_GENAI_API_KEY', None),
         ('XIAOHONGSHU_API_BASE', None),
-        ('LAST30DAYS_REASONING_PROVIDER', 'auto'),
-        ('LAST30DAYS_PLANNER_MODEL', None),
-        ('LAST30DAYS_RERANK_MODEL', None),
-        ('LAST30DAYS_X_MODEL', None),
-        ('LAST30DAYS_X_BACKEND', None),
-        ('LAST30DAYS_REDDIT_BACKEND', None),
+        ('spark-journal_REASONING_PROVIDER', 'auto'),
+        ('spark-journal_PLANNER_MODEL', None),
+        ('spark-journal_RERANK_MODEL', None),
+        ('spark-journal_X_MODEL', None),
+        ('spark-journal_X_BACKEND', None),
+        ('spark-journal_REDDIT_BACKEND', None),
         # Doctor cache freshness window in seconds (doctor --cached).
-        ('LAST30DAYS_DOCTOR_TTL', None),
+        ('spark-journal_DOCTOR_TTL', None),
         # Per-source deadline (seconds) for doctor --probe live checks.
-        ('LAST30DAYS_DOCTOR_PROBE_TIMEOUT', None),
-        ('LAST30DAYS_REDDIT_SC_MIN_ITEMS', None),
-        ('LAST30DAYS_STORE', None),
+        ('spark-journal_DOCTOR_PROBE_TIMEOUT', None),
+        ('spark-journal_REDDIT_SC_MIN_ITEMS', None),
+        ('spark-journal_STORE', None),
         # Discovery topic queue (podcast/X-article pipeline memory). Default
         # ON; the literal value "off" disables queue writes and annotations.
-        ('LAST30DAYS_DISCOVERY_QUEUE', None),
+        ('spark-journal_DISCOVERY_QUEUE', None),
         # Wall-clock budget (seconds) for the deep-tier enrichment batch on
         # the discovery resume leg (--discover --judgments). Read from the
         # resolved config only (pipeline._resume_enrich_budget_seconds);
         # unset/invalid falls back to 450s. The one-shot --discover path
         # keeps its fixed 240s quick budget regardless.
-        ('LAST30DAYS_ENRICH_BUDGET_SECONDS', None),
+        ('spark-journal_ENRICH_BUDGET_SECONDS', None),
         # Opt-in strict exit: truthy -> CLI exits 3 when any source outcome is
         # degraded (neither ok, no-results, nor skipped-unconfigured). #384.
-        ('LAST30DAYS_STRICT_EXIT', None),
-        ('LAST30DAYS_MEMORY_DIR', None),
+        ('spark-journal_STRICT_EXIT', None),
+        ('spark-journal_MEMORY_DIR', None),
         # Optional local-only evidence source. Paths are separated with the
         # platform path separator (":" on macOS/Linux, ";" on Windows).
-        ('LAST30DAYS_CORPUS_DIRS', None),
+        ('spark-journal_CORPUS_DIRS', None),
         # Corpus evidence is omitted from the stable agent JSON export unless
         # this explicit privacy opt-in is truthy.
-        ('LAST30DAYS_CORPUS_IN_EXPORT', None),
-        ('LAST30DAYS_LIBRARY_OWNER', None),
-        ('LAST30DAYS_LIBRARY_CONTEXT', 'on'),
-        ('LAST30DAYS_PUBLISH_PASSWORD', None),
+        ('spark-journal_CORPUS_IN_EXPORT', None),
+        ('spark-journal_LIBRARY_OWNER', None),
+        ('spark-journal_LIBRARY_CONTEXT', 'on'),
+        ('spark-journal_PUBLISH_PASSWORD', None),
         ('OPENAI_MODEL_PIN', None),
         ('XAI_MODEL_PIN', None),
         ('OPENAI_BASE_URL', None),
@@ -517,54 +517,54 @@ def get_config(policy: ConfigLoadPolicy | None = None) -> dict[str, Any]:
         ('SERPER_API_KEY', None),
         ('OPENROUTER_API_KEY', None),
         ('PERPLEXITY_API_KEY', None),
-        ('LAST30DAYS_PERPLEXITY_MODE', 'sonar'),
-        ('LAST30DAYS_PERPLEXITY_MODEL', None),
-        ('LAST30DAYS_PERPLEXITY_MAX_RESULTS', None),
-        ('LAST30DAYS_PERPLEXITY_SEARCH_CONTEXT_SIZE', None),
-        ('LAST30DAYS_PERPLEXITY_SEARCH_MODE', None),
-        ('LAST30DAYS_PERPLEXITY_DOMAIN_FILTER', None),
-        ('LAST30DAYS_PERPLEXITY_LANGUAGE_FILTER', None),
-        ('LAST30DAYS_PERPLEXITY_COUNTRY', None),
-        ('LAST30DAYS_PERPLEXITY_RECENCY_FILTER', None),
-        ('LAST30DAYS_PERPLEXITY_REASONING_EFFORT', None),
-        ('LAST30DAYS_PERPLEXITY_DEEP_TIMEOUT_SECONDS', '600'),
+        ('spark-journal_PERPLEXITY_MODE', 'sonar'),
+        ('spark-journal_PERPLEXITY_MODEL', None),
+        ('spark-journal_PERPLEXITY_MAX_RESULTS', None),
+        ('spark-journal_PERPLEXITY_SEARCH_CONTEXT_SIZE', None),
+        ('spark-journal_PERPLEXITY_SEARCH_MODE', None),
+        ('spark-journal_PERPLEXITY_DOMAIN_FILTER', None),
+        ('spark-journal_PERPLEXITY_LANGUAGE_FILTER', None),
+        ('spark-journal_PERPLEXITY_COUNTRY', None),
+        ('spark-journal_PERPLEXITY_RECENCY_FILTER', None),
+        ('spark-journal_PERPLEXITY_REASONING_EFFORT', None),
+        ('spark-journal_PERPLEXITY_DEEP_TIMEOUT_SECONDS', '600'),
         ('PARALLEL_API_KEY', None),
         ('XQUIK_API_KEY', None),
         # Host-native search signal: set by the SKILL.md agent-host path when the
         # invoking runtime has its own (better) web-search tool, so the engine's
         # keyless search floor stays off there. Defaults unset -> floor allowed.
-        ('LAST30DAYS_NATIVE_SEARCH', None),
+        ('spark-journal_NATIVE_SEARCH', None),
         # Optional SearXNG instance for the keyless-search fallback rung.
-        ('LAST30DAYS_SEARXNG_URL', None),
+        ('spark-journal_SEARXNG_URL', None),
         # Truthy -> disable Trustpilot's headless-Chrome WAF-cookie harvest in
         # automated contexts (cron/CI/eval). Read by trustpilot._harvest_allowed.
-        ('LAST30DAYS_TRUSTPILOT_NO_BROWSER', None),
+        ('spark-journal_TRUSTPILOT_NO_BROWSER', None),
         ('FROM_BROWSER', None),
-        ('LAST30DAYS_TRUST_PROJECT_CONFIG', None),
+        ('spark-journal_TRUST_PROJECT_CONFIG', None),
         ('SETUP_COMPLETE', None),
         ('INCLUDE_SOURCES', ''),
         ('EXCLUDE_SOURCES', ''),
-        ('LAST30DAYS_DEFAULT_SEARCH', ''),
-        # Resolve the user-facing default in last30days.py so an absent value
+        ('spark-journal_DEFAULT_SEARCH', ''),
+        # Resolve the user-facing default in spark-journal.py so an absent value
         # stays distinguishable from an explicit `default`. That distinction
         # lets the new key override legacy ELI5_MODE=true configurations.
-        ('LAST30DAYS_REGISTER', None),
+        ('spark-journal_REGISTER', None),
         ('FUN_LEVEL', 'medium'),
         # Backward compatibility for configs written by the original `eli5 on`
-        # follow-up command. New writes use LAST30DAYS_REGISTER=eli5.
+        # follow-up command. New writes use spark-journal_REGISTER=eli5.
         ('ELI5_MODE', None),
-        ('LAST30DAYS_YOUTUBE_SSH_HOST', None),
-        ('LAST30DAYS_REPORT_CACHE_TTL_SECONDS', None),
-        ('LAST30DAYS_VERIFY_FRESHNESS', None),
-        ('LAST30DAYS_TRANSCRIPT_TIMEOUT', None),
+        ('spark-journal_YOUTUBE_SSH_HOST', None),
+        ('spark-journal_REPORT_CACHE_TTL_SECONDS', None),
+        ('spark-journal_VERIFY_FRESHNESS', None),
+        ('spark-journal_TRANSCRIPT_TIMEOUT', None),
         ('DEGRADED_TRANSCRIPT_THRESHOLD', None),
         (KEYCHAIN_ALIASES_ENV, None),
         # Whisper transcription provider for caption-free audio/video. Groq's
         # free tier is preferred; OPENAI_API_KEY is the paid backstop (already
         # resolved above via openai_auth).
         ('GROQ_API_KEY', None),
-        ('LAST30DAYS_YT_SUB_LANGS', 'en,es,pt'),
-        ('LAST30DAYS_YT_TRANSCRIPT_FAST_TIMEOUT', None),
+        ('spark-journal_YT_SUB_LANGS', 'en,es,pt'),
+        ('spark-journal_YT_TRANSCRIPT_FAST_TIMEOUT', None),
         ('GITHUB_TOKEN', None),
     ]
 
@@ -574,20 +574,20 @@ def get_config(policy: ConfigLoadPolicy | None = None) -> dict[str, Any]:
     # Export debug flag to os.environ so log.py's lazy os.environ.get()
     # picks up .env values. setdefault ensures a shell-exported value is
     # never overwritten by the (lower-priority) .env value.
-    if config.get('LAST30DAYS_DEBUG'):
-        os.environ.setdefault('LAST30DAYS_DEBUG', config['LAST30DAYS_DEBUG'])
+    if config.get('spark-journal_DEBUG'):
+        os.environ.setdefault('spark-journal_DEBUG', config['spark-journal_DEBUG'])
 
     # youtube_yt reads these tuning knobs lazily from os.environ, so values
     # loaded from .env must be exported into the current engine process.
-    if config.get('LAST30DAYS_YT_SUB_LANGS'):
+    if config.get('spark-journal_YT_SUB_LANGS'):
         os.environ.setdefault(
-            'LAST30DAYS_YT_SUB_LANGS',
-            config['LAST30DAYS_YT_SUB_LANGS'],
+            'spark-journal_YT_SUB_LANGS',
+            config['spark-journal_YT_SUB_LANGS'],
         )
-    if config.get('LAST30DAYS_YT_TRANSCRIPT_FAST_TIMEOUT'):
+    if config.get('spark-journal_YT_TRANSCRIPT_FAST_TIMEOUT'):
         os.environ.setdefault(
-            'LAST30DAYS_YT_TRANSCRIPT_FAST_TIMEOUT',
-            config['LAST30DAYS_YT_TRANSCRIPT_FAST_TIMEOUT'],
+            'spark-journal_YT_TRANSCRIPT_FAST_TIMEOUT',
+            config['spark-journal_YT_TRANSCRIPT_FAST_TIMEOUT'],
         )
 
     # Backward-compat: ScrapeCreators' own examples and tutorials use the
@@ -693,7 +693,7 @@ def cookie_extraction_browsers(config: dict[str, Any]) -> list[str]:
         unknown = [b for b in requested if b not in known_browsers]
         if unknown:
             sys.stderr.write(
-                "[last30days] WARNING: FROM_BROWSER ignored unrecognized browser(s): "
+                "[spark-journal] WARNING: FROM_BROWSER ignored unrecognized browser(s): "
                 f"{', '.join(unknown)} (known: {', '.join(known_browsers)})\n"
             )
             sys.stderr.flush()
@@ -704,7 +704,7 @@ def cookie_extraction_browsers(config: dict[str, Any]) -> list[str]:
     # Warn rather than fail silently so a typo (FROM_BROWSER=chrme) is visible
     # instead of looking like "no cookies found".
     sys.stderr.write(
-        f"[last30days] WARNING: FROM_BROWSER='{from_browser}' is not a recognized "
+        f"[spark-journal] WARNING: FROM_BROWSER='{from_browser}' is not a recognized "
         f"browser; no cookies will be read (known: {', '.join(known_browsers)}, "
         "or 'auto'/'off')\n"
     )
@@ -794,9 +794,9 @@ _X_BACKEND_ORDER = ("xai", "bird", "xurl", "xquik")
 # owns — the declared X chain order and the pin/floor env var names — so
 # descriptors import one source of truth instead of restating it.
 X_BACKEND_ORDER = _X_BACKEND_ORDER
-X_BACKEND_PIN_VAR = 'LAST30DAYS_X_BACKEND'
-REDDIT_BACKEND_PIN_VAR = 'LAST30DAYS_REDDIT_BACKEND'
-REDDIT_SC_MIN_ITEMS_VAR = 'LAST30DAYS_REDDIT_SC_MIN_ITEMS'
+X_BACKEND_PIN_VAR = 'spark-journal_X_BACKEND'
+REDDIT_BACKEND_PIN_VAR = 'spark-journal_REDDIT_BACKEND'
+REDDIT_SC_MIN_ITEMS_VAR = 'spark-journal_REDDIT_SC_MIN_ITEMS'
 
 
 def _x_backend_available(
@@ -829,7 +829,7 @@ def x_backend_chain(config: dict[str, Any], local_only: bool = False) -> list[st
     backups, used only when the one before yields no items or errors. There is
     exactly one X source — these are its backends, never fetched in parallel.
 
-    A ``LAST30DAYS_X_BACKEND`` pin forces a single backend (no failover): the
+    A ``spark-journal_X_BACKEND`` pin forces a single backend (no failover): the
     user explicitly chose it. Browser-cookie probing is intentionally avoided
     (automatic Keychain access causes popups); bird counts as available only
     when AUTH_TOKEN and CT0 are present explicitly.
@@ -976,13 +976,13 @@ def is_native_search(config: dict[str, Any]) -> bool:
     """Whether the invoking host has its own (better) native web search.
 
     Defined by capability, not host identity: the SKILL.md agent-host path sets
-    ``LAST30DAYS_NATIVE_SEARCH`` when the runtime actually has a native web-search
+    ``spark-journal_NATIVE_SEARCH`` when the runtime actually has a native web-search
     tool (e.g. Claude Code's WebSearch). When true, the engine's keyless search
     floor is suppressed so a worse free search never preempts the model's own.
     Defaults False (unset), so headless/cron and hosts without native search fall
     to the keyless floor.
     """
-    raw = config.get('LAST30DAYS_NATIVE_SEARCH')
+    raw = config.get('spark-journal_NATIVE_SEARCH')
     if raw is None:
         return False
     return str(raw).strip().lower() in ('1', 'true', 'yes', 'on')
@@ -1169,7 +1169,7 @@ def is_xiaohongshu_available(config: dict[str, Any]) -> bool:
             continue
         except Exception as exc:
             sys.stderr.write(
-                f"[last30days] WARNING: unexpected error checking Xiaohongshu "
+                f"[spark-journal] WARNING: unexpected error checking Xiaohongshu "
                 f"at {base}: {type(exc).__name__}: {exc}\n"
             )
             sys.stderr.flush()

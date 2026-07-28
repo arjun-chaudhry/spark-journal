@@ -1,4 +1,4 @@
-// Package manifest holds tests for mcp/manifest.json. It contains no
+﻿// Package manifest holds tests for mcp/manifest.json. It contains no
 // production code - the manifest itself is the artifact, and these tests
 // guard structural invariants the bundling pipeline depends on.
 package manifest
@@ -68,8 +68,8 @@ func TestManifestRequiredFields(t *testing.T) {
 	if m.ManifestVersion != "0.3" {
 		t.Errorf("manifest_version = %q, want 0.3", m.ManifestVersion)
 	}
-	if m.Name != "last30days-pp-mcp" {
-		t.Errorf("name = %q, want last30days-pp-mcp", m.Name)
+	if m.Name != "spark-journal-pp-mcp" {
+		t.Errorf("name = %q, want spark-journal-pp-mcp", m.Name)
 	}
 	if m.Version == "" {
 		t.Error("version is empty")
@@ -77,8 +77,8 @@ func TestManifestRequiredFields(t *testing.T) {
 	if m.Server.Type != "binary" {
 		t.Errorf("server.type = %q, want binary", m.Server.Type)
 	}
-	if m.Server.EntryPoint != "bin/last30days-pp-mcp" {
-		t.Errorf("server.entry_point = %q, want bin/last30days-pp-mcp", m.Server.EntryPoint)
+	if m.Server.EntryPoint != "bin/spark-journal-pp-mcp" {
+		t.Errorf("server.entry_point = %q, want bin/spark-journal-pp-mcp", m.Server.EntryPoint)
 	}
 	if m.Compatibility.ClaudeDesktop == "" {
 		t.Error("compatibility.claude_desktop is empty")

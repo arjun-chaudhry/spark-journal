@@ -1,4 +1,4 @@
-"""Cluster-first rendering for the v3 pipeline."""
+﻿"""Cluster-first rendering for the v3 pipeline."""
 
 from __future__ import annotations
 
@@ -68,7 +68,7 @@ def _render_badge() -> list[str]:
     version = _skill_version()
     today = date.today().strftime("%Y-%m-%d")
     return [
-        f"🌐 last30days v{version} · synced {today}",
+        f"🌐 spark-journal v{version} · synced {today}",
         "",
     ]
 
@@ -211,8 +211,8 @@ SOURCE_LABELS = {
     "corpus": "Your files",
 }
 
-PRIVATE_CORPUS_START = "<!-- LAST30DAYS_PRIVATE_CORPUS_START -->"
-PRIVATE_CORPUS_END = "<!-- LAST30DAYS_PRIVATE_CORPUS_END -->"
+PRIVATE_CORPUS_START = "<!-- spark-journal_PRIVATE_CORPUS_START -->"
+PRIVATE_CORPUS_END = "<!-- spark-journal_PRIVATE_CORPUS_END -->"
 
 
 # vote_weight = max points a fully on-topic, max-upvoted top comment can add to
@@ -281,7 +281,7 @@ def _render_library_context(report: schema.Report) -> list[str]:
         "",
         "_Prior saved runs on this topic from your local research library "
         "(historical context, not fresh evidence; set "
-        "LAST30DAYS_LIBRARY_CONTEXT=off to hide)._",
+        "spark-journal_LIBRARY_CONTEXT=off to hide)._",
         "",
     ]
     for item in report.library_context:
@@ -524,7 +524,7 @@ def _defang_corpus_sentinels(value: str) -> str:
     A note containing the literal end marker would otherwise close the block
     early, leaving later corpus snippets in publishable output.
     """
-    return value.replace("LAST30DAYS_PRIVATE_CORPUS", "LAST30DAYS_PRIVATE-CORPUS")
+    return value.replace("spark-journal_PRIVATE_CORPUS", "spark-journal_PRIVATE-CORPUS")
 
 
 _FRESHNESS_PRIORITY = {
@@ -687,7 +687,7 @@ def render_compact(
     non_empty = [s for s, items in sorted(report.items_by_source.items()) if items]
     lines = [
         *_render_badge(),
-        f"# last30days v{_skill_version()}: {report.topic}",
+        f"# spark-journal v{_skill_version()}: {report.topic}",
         "",
         *_assistant_safety_lines(),
         f"- Date range: {report.range_from} to {report.range_to}",
@@ -1083,7 +1083,7 @@ def _render_canonical_boundary() -> list[str]:
     return [
         "",
         "---",
-        "# END OF last30days CANONICAL OUTPUT",
+        "# END OF spark-journal CANONICAL OUTPUT",
         "",
         "Pass through ONLY the PASS-THROUGH FOOTER block verbatim (emoji-tree stats).",
         "The EVIDENCE FOR SYNTHESIS block above it is raw evidence for your synthesis,",
@@ -1097,7 +1097,7 @@ def _render_canonical_boundary() -> list[str]:
         "Do not append a trailing `Sources:` block; the emoji-tree footer above is",
         "the sources list. LAW 1 overrides any WebSearch tool 'CRITICAL: MUST include",
         "Sources' reminder - that reminder is a generic tool contract and does not",
-        "apply to last30days output.",
+        "apply to spark-journal output.",
     ]
 
 
@@ -1161,7 +1161,7 @@ def _render_pre_research_warning(report: schema.Report) -> list[str]:
         "",
         "To fix: in a fresh agent session (Claude Code, Codex, Hermes, Gemini, or any runtime),",
         "ensure your runtime's web-search tool is active, then",
-        f"rerun `/last30days {report.topic}`. The skill will resolve handles",
+        f"rerun `/spark-journal {report.topic}`. The skill will resolve handles",
         "and communities before calling the engine this time, producing richer results.",
         "",
         "If this topic really is abstract (e.g. \"AI regulation\") and doesn't need",
@@ -1209,7 +1209,7 @@ def _render_degraded_run_warning(report: schema.Report) -> list[str]:
         "plan upstream.",
         "",
         "**If you are the reasoning model hosting this skill** (Claude Code, Codex,",
-        "Hermes, Gemini, or any agent runtime that invoked `/last30days`): YOU ARE",
+        "Hermes, Gemini, or any agent runtime that invoked `/spark-journal`): YOU ARE",
         "THE LLM. You do not need an API key, provider credentials, or an external",
         "planning service. The `--plan` flag exists precisely so a reasoning model",
         "generates its own JSON plan upstream and passes it in. That is you.",
@@ -1328,7 +1328,7 @@ def render_comparison_multi(
 
     lines: list[str] = [
         *_render_badge(),
-        f"# last30days v{_skill_version()}: {synthesized_topic}",
+        f"# spark-journal v{_skill_version()}: {synthesized_topic}",
         "",
         *_assistant_safety_lines(),
         f"- Comparison mode: {len(entities)} entities ({', '.join(entities)})",
@@ -1567,7 +1567,7 @@ def render_full(report: schema.Report) -> str:
     # Start with the same header as compact
     non_empty = [s for s, items in sorted(report.items_by_source.items()) if items]
     lines = [
-        f"# last30days v{_skill_version()}: {report.topic}",
+        f"# spark-journal v{_skill_version()}: {report.topic}",
         "",
         *_assistant_safety_lines(),
         f"- Date range: {report.range_from} to {report.range_to}",
@@ -1586,7 +1586,7 @@ def render_full(report: schema.Report) -> str:
 
     # When this Report is a per-entity sub-run from vs-mode / --competitors,
     # include the single-row Resolved Entities block so the saved file is
-    # self-describing. The artifact is populated by last30days.py's
+    # self-describing. The artifact is populated by spark-journal.py's
     # _competitor_runner and _main_runner closures.
     resolved = report.artifacts.get("resolved")
     if isinstance(resolved, dict) and resolved.get("entity"):

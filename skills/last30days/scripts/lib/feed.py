@@ -1,4 +1,4 @@
-"""Deterministic Atom rendering for the saved research library."""
+﻿"""Deterministic Atom rendering for the saved research library."""
 
 from __future__ import annotations
 
@@ -19,12 +19,12 @@ def render_atom(
     library_id: str,
     entry_urls: Mapping[str, str] | None = None,
     feed_url: str | None = None,
-    title: str = "last30days research library",
-    author: str = "last30days research library",
+    title: str = "spark-journal research library",
+    author: str = "spark-journal research library",
 ) -> str:
     """Render an Atom feed whose IDs and timestamps are stable across runs."""
     urls = entry_urls or {}
-    feed_id = f"urn:last30days:research-library:{library_id}"
+    feed_id = f"urn:spark-journal:research-library:{library_id}"
     root = ET.Element(_tag("feed"))
     ET.SubElement(root, _tag("id")).text = feed_id
     ET.SubElement(root, _tag("title")).text = title
@@ -39,7 +39,7 @@ def render_atom(
 
     for item in entries:
         node = ET.SubElement(root, _tag("entry"))
-        entry_id = item.entry_id.removeprefix("urn:last30days:")
+        entry_id = item.entry_id.removeprefix("urn:spark-journal:")
         ET.SubElement(node, _tag("id")).text = f"{feed_id}:{entry_id}"
         ET.SubElement(node, _tag("title")).text = item.headline
         ET.SubElement(node, _tag("updated")).text = _format_timestamp(item.source_updated_at)

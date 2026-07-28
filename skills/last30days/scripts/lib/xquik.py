@@ -1,4 +1,4 @@
-"""Xquik X search source for the v3.0.0 last30days pipeline.
+﻿"""Xquik X search source for the v3.0.0 spark-journal pipeline.
 
 Uses the Xquik REST API (https://xquik.com/api/v1) to search X/Twitter
 with full engagement metrics (likes, retweets, replies, quotes, views,
