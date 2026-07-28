@@ -1,18 +1,5 @@
 # /spark-journal
 
-<p align="center">
-  <img src="media/pr-assets/spark-journal-ad.gif" width="720" alt="spark-journal - an AI agent-led search engine that searches people, not editors" />
-</p>
-
-<p align="center">
-  <a href="https://github.com/arjun-chaudhry/spark-journal">
-    <img src="https://img.shields.io/badge/%231-Repository%20Of%20The%20Day-6f42c1?style=for-the-badge&logo=github&label=GITHUB%20TRENDING" alt="GitHub Trending #1 Repository Of The Day" />
-  </a>
-  <br/>
-  <a href="https://trendshift.io/repositories/21997" target="_blank">
-    <img src="https://trendshift.io/api/badge/repositories/21997" alt="arjun-chaudhry/spark-journal | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/>
-  </a>
-</p>
 
 **An AI agent-led search engine scored by upvotes, likes, and real money - not editors.**
 
